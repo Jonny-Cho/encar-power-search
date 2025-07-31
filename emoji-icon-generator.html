@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Icon Generator - Encar Power Search</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .icon-set {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .icon-preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .icon-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .icon-16 { width: 16px; height: 16px; }
+        .icon-48 { width: 48px; height: 48px; }
+        .icon-128 { width: 128px; height: 128px; }
+
+        .emoji-icon {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .emoji-16 { font-size: 12px; }
+        .emoji-48 { font-size: 36px; }
+        .emoji-128 { font-size: 96px; }
+
+        /* 배경 스타일 */
+        .bg-white { background: white; }
+        .bg-orange { background: #ff6b35; }
+        .bg-gradient { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+        .bg-rounded { border-radius: 25%; }
+
+        /* 조합 이모지 */
+        .combo-emoji {
+            position: relative;
+            display: inline-block;
+        }
+
+        .main-emoji {
+            position: relative;
+            z-index: 1;
+        }
+
+        .overlay-emoji {
+            position: absolute;
+            top: -20%;
+            right: -20%;
+            font-size: 0.6em;
+            z-index: 2;
+            background: white;
+            border-radius: 50%;
+            padding: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .download-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            background: #e55a2b;
+        }
+
+        .size-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .instructions {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🚗 이모지 아이콘 생성기</h2>
+            <p><strong>Encar Power Search</strong> Chrome Extension용 아이콘을 이모지로 생성합니다.</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📥 사용법</h3>
+            <ol>
+                <li>원하는 아이콘 디자인의 <strong>"다운로드"</strong> 버튼 클릭</li>
+                <li>자동으로 <code>icon16.png</code>, <code>icon48.png</code>, <code>icon128.png</code> 다운로드</li>
+                <li>파일들을 <code>icons/</code> 폴더에 저장</li>
+                <li><code>manifest.json</code>에서 아이콘 경로 추가</li>
+            </ol>
+        </div>
+
+        <div class="icon-grid">
+            <!-- 기본 자동차 -->
+            <div class="icon-set">
+                <h4>🚗 기본 자동차</h4>
+                <div class="icon-preview icon-16 bg-white">
+                    <div class="emoji-icon emoji-16">🚗</div>
+                </div>
+                <div class="icon-preview icon-48 bg-white">
+                    <div class="emoji-icon emoji-48">🚗</div>
+                </div>
+                <div class="icon-preview icon-128 bg-white">
+                    <div class="emoji-icon emoji-128">🚗</div>
+                </div>
+                <button class="download-btn" onclick="downloadIconSet('🚗', 'white', 'car')">다운로드</button>
+            </div>
+
+            <!-- 오렌지 배경 자동차 -->
+            <div class="icon-set">
+                <h4>🚗 오렌지 배경</h4>
+                <div class="icon-preview icon-16 bg-orange bg-rounded">
+                    <div class="emoji-icon emoji-16">🚗</div>
+                </div>
+                <div class="icon-preview icon-48 bg-orange bg-rounded">
+                    <div class="emoji-icon emoji-48">🚗</div>
+                </div>
+                <div class="icon-preview icon-128 bg-orange bg-rounded">
+                    <div class="emoji-icon emoji-128">🚗</div>
+                </div>
+                <button class="download-btn" onclick="downloadIconSet('🚗', '#ff6b35', 'car-orange')">다운로드</button>
+            </div>
+
+            <!-- 자동차 + 돋보기 조합 -->
+            <div class="icon-set">
+                <h4>🚗🔍 자동차 + 검색</h4>
+                <div class="icon-preview icon-16 bg-white">
+                    <div class="emoji-icon emoji-16">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">🔍</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-48 bg-white">
+                    <div class="emoji-icon emoji-48">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">🔍</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-128 bg-white">
+                    <div class="emoji-icon emoji-128">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">🔍</span>
+                        </span>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadComboIconSet('🚗', '🔍', 'white', 'car-search')">다운로드</button>
+            </div>
+
+            <!-- 자동차 + 체크마크 조합 -->
+            <div class="icon-set">
+                <h4>🚗✅ 자동차 + 체크</h4>
+                <div class="icon-preview icon-16 bg-white">
+                    <div class="emoji-icon emoji-16">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">✅</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-48 bg-white">
+                    <div class="emoji-icon emoji-48">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">✅</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-128 bg-white">
+                    <div class="emoji-icon emoji-128">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🚗</span>
+                            <span class="overlay-emoji">✅</span>
+                        </span>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadComboIconSet('🚗', '✅', 'white', 'car-check')">다운로드</button>
+            </div>
+
+            <!-- 방패 + 자동차 -->
+            <div class="icon-set">
+                <h4>🛡️🚗 방패 + 자동차</h4>
+                <div class="icon-preview icon-16 bg-white">
+                    <div class="emoji-icon emoji-16">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🛡️</span>
+                            <span class="overlay-emoji">🚗</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-48 bg-white">
+                    <div class="emoji-icon emoji-48">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🛡️</span>
+                            <span class="overlay-emoji">🚗</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="icon-preview icon-128 bg-white">
+                    <div class="emoji-icon emoji-128">
+                        <span class="combo-emoji">
+                            <span class="main-emoji">🛡️</span>
+                            <span class="overlay-emoji">🚗</span>
+                        </span>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadComboIconSet('🛡️', '🚗', 'white', 'shield-car')">다운로드</button>
+            </div>
+
+            <!-- 그라디언트 배경 -->
+            <div class="icon-set">
+                <h4>🚗 그라디언트</h4>
+                <div class="icon-preview icon-16 bg-gradient bg-rounded">
+                    <div class="emoji-icon emoji-16">🚗</div>
+                </div>
+                <div class="icon-preview icon-48 bg-gradient bg-rounded">
+                    <div class="emoji-icon emoji-48">🚗</div>
+                </div>
+                <div class="icon-preview icon-128 bg-gradient bg-rounded">
+                    <div class="emoji-icon emoji-128">🚗</div>
+                </div>
+                <button class="download-btn" onclick="downloadIconSet('🚗', 'gradient', 'car-gradient')">다운로드</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 단일 이모지 아이콘 다운로드
+        function downloadIconSet(emoji, bgColor, name) {
+            const sizes = [16, 48, 128];
+            sizes.forEach(size => {
+                downloadEmojiIcon(emoji, size, bgColor, `icon${size}.png`);
+            });
+        }
+
+        // 조합 이모지 아이콘 다운로드
+        function downloadComboIconSet(mainEmoji, overlayEmoji, bgColor, name) {
+            const sizes = [16, 48, 128];
+            sizes.forEach(size => {
+                downloadComboEmojiIcon(mainEmoji, overlayEmoji, size, bgColor, `icon${size}.png`);
+            });
+        }
+
+        // 단일 이모지를 Canvas로 그리고 다운로드
+        function downloadEmojiIcon(emoji, size, bgColor, filename) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 배경 그리기
+            if (bgColor === 'gradient') {
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#ff6b35');
+                gradient.addColorStop(1, '#f7931e');
+                ctx.fillStyle = gradient;
+            } else if (bgColor === 'white') {
+                ctx.fillStyle = 'white';
+            } else {
+                ctx.fillStyle = bgColor;
+            }
+            
+            // 둥근 모서리 배경
+            ctx.beginPath();
+            const radius = size * 0.16; // 16% 라운드
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+            
+            // 이모지 그리기
+            ctx.font = `${size * 0.75}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, size / 2, size / 2);
+            
+            // 다운로드
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 조합 이모지를 Canvas로 그리고 다운로드
+        function downloadComboEmojiIcon(mainEmoji, overlayEmoji, size, bgColor, filename) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 배경 그리기
+            ctx.fillStyle = bgColor === 'white' ? 'white' : bgColor;
+            ctx.beginPath();
+            const radius = size * 0.16;
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+            
+            // 메인 이모지 그리기
+            ctx.font = `${size * 0.6}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(mainEmoji, size / 2, size / 2);
+            
+            // 오버레이 배경 (작은 흰색 원)
+            const overlaySize = size * 0.35;
+            const overlayX = size * 0.75;
+            const overlayY = size * 0.25;
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(overlayX, overlayY, overlaySize / 2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 그림자 효과
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            
+            // 오버레이 이모지 그리기
+            ctx.font = `${overlaySize * 0.8}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"`;
+            ctx.fillText(overlayEmoji, overlayX, overlayY);
+            
+            // 그림자 리셋
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // 다운로드
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Canvas roundRect polyfill (구형 브라우저 지원)
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>
