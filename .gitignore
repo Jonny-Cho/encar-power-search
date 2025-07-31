@@ -10,7 +10,7 @@ dist/
 
 # 스크린샷 (Chrome Web Store용)
 screenshots/
-SCR-*.png
+*.png
 
 # 개발 환경
 .DS_Store
@@ -30,3 +30,6 @@ node_modules/
 # 테스트 파일
 test/
 *.test.js
+
+# Claude Code 개인 설정
+.claude/
