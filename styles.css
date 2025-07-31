@@ -1,9 +1,16 @@
 /* Encar Power Search - Styles */
 /* Chrome Extension에서 엔카 페이지에 주입되는 스타일 */
 
-/* 사고유무 필터 기본 스타일 (엔카 기본 스타일 따름) */
+/* 사고유무 필터 기본 스타일 - Chrome Extension임을 표시 */
 .schset.accident {
-    /* 엔카 기본 스타일을 유지하도록 별도 스타일 없음 */
+    /* 엔카 기본 스타일을 유지하되 Extension 표시 */
+    border-left: 3px solid rgb(255, 107, 53) !important;
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.05) 0%, transparent 100%) !important;
+}
+
+.schset.accident h5 a {
+    color: rgb(255, 107, 53) !important;
+    font-weight: 600 !important;
 }
 
 /* 드롭다운 열기/닫기 애니메이션 */
