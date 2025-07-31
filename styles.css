@@ -1,7 +1,42 @@
 /* Encar Power Search - Styles */
 /* Chrome Extension에서 엔카 페이지에 주입되는 스타일 */
 
-/* 필터 버튼 기본 스타일 */
+/* 사고유무 필터 기본 스타일 (엔카 기본 스타일 따름) */
+.schset.accident {
+    /* 엔카 기본 스타일을 유지하도록 별도 스타일 없음 */
+}
+
+/* 드롭다운 열기/닫기 애니메이션 */
+.schset.accident.open .ic_bul {
+    transform: rotate(180deg) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.schset.accident .ic_bul {
+    transition: transform 0.3s ease !important;
+}
+
+/* 드롭다운 패널 스타일 */
+.schset.accident .depthpreant {
+    transition: all 0.3s ease !important;
+    overflow: hidden !important;
+}
+
+/* 체크박스 선택 시 하이라이트 */
+.schset.accident .deplist li {
+    transition: background-color 0.2s ease !important;
+}
+
+.schset.accident .deplist li:hover {
+    background-color: rgba(255, 107, 53, 0.1) !important;
+}
+
+.schset.accident .checkbox:checked + label {
+    color: #ff6b35 !important;
+    font-weight: 600 !important;
+}
+
+/* 기존 필터 버튼 스타일 (호환성 유지) */
 .encar-filter-btn {
     background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
     color: white !important;
