@@ -1,0 +1,32 @@
+# Chrome Extension 배포 파일
+*.zip
+*.crx
+*.pem
+archive/
+
+# Chrome Extension 개발
+build/
+dist/
+
+# 스크린샷 (Chrome Web Store용)
+screenshots/
+SCR-*.png
+
+# 개발 환경
+.DS_Store
+*.log
+node_modules/
+
+# IDE 설정
+.vscode/
+.idea/
+*.sublime-*
+
+# 임시 파일
+*~
+*.tmp
+*.temp
+
+# 테스트 파일
+test/
+*.test.js
