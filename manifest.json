@@ -5,18 +5,16 @@
   "description": "엔카 무사고 차량 필터링 및 고급 검색 기능을 제공하는 Chrome 확장 프로그램",
   
   "permissions": [
-    "storage",
     "activeTab"
   ],
   
   "host_permissions": [
-    "http://www.encar.com/*",
     "https://www.encar.com/*"
   ],
   
   "content_scripts": [
     {
-      "matches": ["http://www.encar.com/*", "https://www.encar.com/*"],
+      "matches": ["https://www.encar.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"],
       "run_at": "document_end"
