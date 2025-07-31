@@ -4,7 +4,6 @@
 /* 사고유무 필터 기본 스타일 - Chrome Extension임을 표시 */
 .schset.accident {
     /* 엔카 기본 스타일을 유지하되 Extension 표시 */
-    border-left: 3px solid rgb(255, 107, 53) !important;
     background: linear-gradient(90deg, rgba(255, 107, 53, 0.05) 0%, transparent 100%) !important;
 }
 
@@ -13,13 +12,14 @@
     font-weight: 600 !important;
 }
 
-/* 드롭다운 열기/닫기 애니메이션 */
-.schset.accident.open .ic_bul {
-    transform: rotate(180deg) !important;
+/* 드롭다운 열기/닫기 애니메이션 - 엔카 기본 스타일과 호환 */
+.schset.accident .ic_bul {
+    transform: translateY(-50%) rotate(0deg) !important;
     transition: transform 0.3s ease !important;
 }
 
-.schset.accident .ic_bul {
+.schset.accident.open .ic_bul {
+    transform: translateY(-50%) rotate(-180deg) !important;
     transition: transform 0.3s ease !important;
 }
 
