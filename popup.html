@@ -44,64 +44,65 @@
             color: #333;
         }
         
-        .setting-item {
+        .status-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
-        .setting-item:last-child {
+        .status-item:last-child {
             margin-bottom: 0;
         }
         
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 24px;
-            background: #ccc;
-            border-radius: 24px;
-            cursor: pointer;
-            transition: background 0.3s;
+        .status-label {
+            font-size: 13px;
+            color: #666;
         }
         
-        .toggle-switch.active {
-            background: #ff6b35;
+        .status-value {
+            font-weight: 600;
+            font-size: 13px;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
         
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
+        .status-value.active {
+            background: #d4edda;
+            color: #155724;
         }
         
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(26px);
+        .status-value.inactive {
+            background: #f8d7da;
+            color: #721c24;
         }
         
-        .btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
+        .usage-guide {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .usage-guide p {
+            margin: 8px 0;
+            color: #555;
+        }
+        
+        .usage-guide .highlight {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .version-info {
+            text-align: center;
+            margin-top: 15px;
+            padding: 8px;
+            background: #e9ecef;
             border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: #ff6b35;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #e55a2b;
+            font-size: 11px;
+            color: #666;
         }
         
         .status {
@@ -130,41 +131,30 @@
     </div>
     
     <div class="setting-group">
-        <div class="setting-title">필터 설정</div>
-        <div class="setting-item">
-            <span>무사고 필터 활성화</span>
-            <div class="toggle-switch" id="noAccidentToggle">
-                <div class="toggle-slider"></div>
+        <div class="setting-title">📍 현재 상태</div>
+        <div class="page-status" id="pageStatus">
+            <div class="status-item">
+                <span class="status-label">페이지:</span>
+                <span class="status-value" id="currentPage">확인 중...</span>
             </div>
-        </div>
-        <div class="setting-item">
-            <span>자동 필터 적용</span>
-            <div class="toggle-switch" id="autoFilterToggle">
-                <div class="toggle-slider"></div>
+            <div class="status-item">
+                <span class="status-label">Extension:</span>
+                <span class="status-value active" id="extensionStatus">활성화</span>
             </div>
         </div>
     </div>
     
     <div class="setting-group">
-        <div class="setting-title">추가 옵션</div>
-        <div class="setting-item">
-            <span>알림 표시</span>
-            <div class="toggle-switch active" id="notificationToggle">
-                <div class="toggle-slider"></div>
-            </div>
-        </div>
-        <div class="setting-item">
-            <span>필터 상태 저장</span>
-            <div class="toggle-switch active" id="saveStateToggle">
-                <div class="toggle-slider"></div>
-            </div>
+        <div class="setting-title">📖 사용법</div>
+        <div class="usage-guide">
+            <p>1. 엔카 검색 페이지로 이동</p>
+            <p>2. <span class="highlight">"사고유무"</span> 필터 클릭</p>
+            <p>3. 무사고/사고 있음 선택</p>
         </div>
     </div>
     
-    <button class="btn btn-primary" id="applyBtn">설정 적용</button>
-    
-    <div class="status inactive" id="status">
-        필터가 비활성화되어 있습니다
+    <div class="version-info">
+        <span id="versionInfo">Encar Power Search v...</span>
     </div>
     
     <script src="popup.js"></script>
