@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encar Power Search</title>
+    <style>
+        body {
+            width: 300px;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .setting-group {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .setting-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #ff6b35;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(26px);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #ff6b35;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🚗 Encar Power Search</div>
+        <div class="subtitle">무사고 차량 필터링</div>
+    </div>
+    
+    <div class="setting-group">
+        <div class="setting-title">필터 설정</div>
+        <div class="setting-item">
+            <span>무사고 필터 활성화</span>
+            <div class="toggle-switch" id="noAccidentToggle">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+        <div class="setting-item">
+            <span>자동 필터 적용</span>
+            <div class="toggle-switch" id="autoFilterToggle">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="setting-group">
+        <div class="setting-title">추가 옵션</div>
+        <div class="setting-item">
+            <span>알림 표시</span>
+            <div class="toggle-switch active" id="notificationToggle">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+        <div class="setting-item">
+            <span>필터 상태 저장</span>
+            <div class="toggle-switch active" id="saveStateToggle">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="btn btn-primary" id="applyBtn">설정 적용</button>
+    
+    <div class="status inactive" id="status">
+        필터가 비활성화되어 있습니다
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

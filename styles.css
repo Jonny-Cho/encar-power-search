@@ -1,0 +1,213 @@
+/* Encar Power Search - Styles */
+/* Chrome Extension에서 엔카 페이지에 주입되는 스타일 */
+
+/* 필터 버튼 기본 스타일 */
+.encar-filter-btn {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    margin: 5px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    min-height: 36px !important;
+    vertical-align: middle !important;
+}
+
+.encar-filter-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+.encar-filter-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* 활성화된 버튼 스타일 */
+.encar-filter-btn.active {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+/* 필터 래퍼 스타일 */
+.encar-power-search-filter {
+    padding: 10px !important;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e9ecef !important;
+    margin-bottom: 10px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+}
+
+.encar-power-search-filter::before {
+    content: "🔍 Encar Power Search:" !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    font-size: 14px !important;
+}
+
+/* 숨겨진 차량 아이템 표시 */
+.encar-hidden-accident {
+    opacity: 0.3 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* 알림 스타일 */
+.encar-notification {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: #28a745 !important;
+    color: white !important;
+    padding: 12px 20px !important;
+    border-radius: 6px !important;
+    z-index: 10000 !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    animation: slideIn 0.3s ease;
+}
+
+/* 애니메이션 */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 결과 카운트 하이라이트 */
+.encar-result-highlight {
+    background: #fff3cd !important;
+    color: #856404 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+/* 무사고 차량 하이라이트 (선택사항) */
+.encar-no-accident-highlight {
+    border-left: 4px solid #28a745 !important;
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, transparent 100%) !important;
+}
+
+/* 로딩 스피너 */
+.encar-loading {
+    display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 2px solid #f3f3f3 !important;
+    border-top: 2px solid #ff6b35 !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+    margin-right: 8px !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 통계 정보 패널 */
+.encar-stats-panel {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    margin: 10px 0 !important;
+    font-size: 14px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.encar-stats-title {
+    font-weight: 600 !important;
+    color: #495057 !important;
+    margin-bottom: 8px !important;
+    font-size: 16px !important;
+}
+
+.encar-stats-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 5px !important;
+}
+
+.encar-stats-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.encar-stats-value {
+    font-weight: 600 !important;
+    color: #ff6b35 !important;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .encar-filter-btn {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+    }
+    
+    .encar-power-search-filter {
+        padding: 8px !important;
+    }
+    
+    .encar-notification {
+        right: 10px !important;
+        top: 10px !important;
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+    }
+}
+
+/* 다크 모드 대응 (선택사항) */
+@media (prefers-color-scheme: dark) {
+    .encar-power-search-filter {
+        background: #343a40 !important;
+        border-color: #495057 !important;
+        color: #f8f9fa !important;
+    }
+    
+    .encar-stats-panel {
+        background: #343a40 !important;
+        border-color: #495057 !important;
+        color: #f8f9fa !important;
+    }
+}
+
+/* 엔카 사이트 특정 요소와의 충돌 방지 */
+.encar-filter-btn * {
+    box-sizing: border-box !important;
+}
+
+/* 접근성 개선 */
+.encar-filter-btn:focus {
+    outline: 2px solid #0066cc !important;
+    outline-offset: 2px !important;
+}
+
+/* 버튼 비활성화 상태 */
+.encar-filter-btn:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.encar-filter-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
