@@ -1,4 +1,8 @@
-# CLAUDE.md - 프로젝트 개발 참고사항
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+# 엔카 파워 서치 - Chrome 확장 프로그램 개발 가이드
 
 ## 📋 프로젝트 개요
 
@@ -18,6 +22,37 @@
 - **스타일**: CSS3
 - **저장소**: Chrome Storage API
 - **빌드**: 없음 (순수 JS)
+
+## 🔧 개발 명령어
+
+### 확장 프로그램 테스트
+```bash
+# Chrome에서 확장 프로그램 로드
+# 1. chrome://extensions/ 접속
+# 2. 개발자 모드 활성화
+# 3. "압축해제된 확장 프로그램 로드" 클릭
+# 4. 프로젝트 폴더 선택
+```
+
+### 개발 중 확장 프로그램 새로고침
+```bash
+# 코드 변경 후:
+# 1. chrome://extensions/ 접속
+# 2. 확장 프로그램의 새로고침 버튼 클릭
+# 3. encar.com 페이지 새로고침하여 변경사항 테스트
+```
+
+### 디버그 콘솔 접근
+```bash
+# content script 디버깅:
+# F12 -> 콘솔 (encar.com 페이지에서)
+
+# popup 디버깅:
+# 확장 프로그램 아이콘 우클릭 -> 팝업 검사
+
+# background script 디버깅:
+# chrome://extensions/ -> 세부정보 -> 뷰 검사: 백그라운드 페이지
+```
 
 ## 📁 프로젝트 구조
 
@@ -41,14 +76,32 @@ encar-power-search/
 - [x] Background Script (Service Worker)
 - [x] GitHub 저장소 생성 및 첫 커밋
 
+## 🏗️ 핵심 아키텍처
+
+### 주요 구성 요소
+- **content.js**: 엔카 검색 페이지에 사고유무 필터 UI를 주입하고, URL 해시 파라미터를 조작하여 필터링 수행
+- **popup.js**: 확장 프로그램 상태 표시 및 설정, background script와 통신
+- **background.js**: 확장 프로그램 상태 관리, 탭 업데이트 처리, 뱃지 표시기 설정
+- **URL 조작 방식**: 엔카의 해시 기반 검색 파라미터(#!{JSON}) 구조를 활용한 필터 적용
+
+### 엔카 URL 구조 이해
+```javascript
+// 엔카 검색 URL 예시
+// https://www.encar.com/searchList#!{"action":"(And.Hidden.N._.Accident.N._.)","page":1}
+
+// 무사고 필터: _.Accident.N._
+// 사고차량 필터: _.Accident.Y._
+// 필터 제거: action에서 _.Accident.* 패턴 제거
+```
+
 ### 🔄 다음 작업
-- [ ] **content.js 구현** (핵심 기능)
-  - 엔카 페이지 DOM 구조 분석
-  - 무사고 필터 버튼 추가
-  - 사고 이력 차량 식별 로직
-  - 필터링 기능 구현
-- [ ] 아이콘 파일 추가 (16px, 48px, 128px)
-- [ ] 실제 엔카 사이트에서 테스트
+- [x] **content.js 구현** (핵심 기능 완료)
+  - [x] 엔카 페이지 DOM 구조 분석
+  - [x] 무사고 필터 버튼 추가
+  - [x] 사고 이력 차량 식별 로직
+  - [x] 필터링 기능 구현
+- [x] 아이콘 파일 추가 (16px, 48px, 128px)
+- [ ] 실제 엔카 사이트에서 테스트 및 버그 수정
 
 ## 🎨 UI/UX 가이드라인
 
