@@ -6,11 +6,18 @@ ZIP_NAME="encar-power-search-v${VERSION}.zip"
 
 echo "📦 Building Chrome Extension v${VERSION}..."
 
-# 기존 ZIP 파일 아카이빙
-if [ -f *.zip ]; then
+# 기존 ZIP 파일 아카이빙 (덮어쓰지 않고 누적)
+if ls *.zip 1> /dev/null 2>&1; then
     mkdir -p archive
-    mv *.zip archive/
-    echo "📁 Previous versions moved to archive/"
+    for file in *.zip; do
+        if [ ! -f "archive/$file" ]; then
+            mv "$file" archive/
+            echo "📁 Moved $file to archive/"
+        else
+            rm "$file"
+            echo "🗑️  Removed duplicate $file"
+        fi
+    done
 fi
 
 # 배포용 ZIP 파일 생성 (개발 파일 제외)

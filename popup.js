@@ -6,15 +6,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const extensionStatusElement = document.getElementById('extensionStatus');
     const versionInfoElement = document.getElementById('versionInfo');
     const hidePhotoToggle = document.getElementById('hidePhotoSection');
+    const hidePriorityToggle = document.getElementById('hidePrioritySection');
     
     // 초기화
     loadVersionInfo();
     checkPageStatus();
     loadPhotoSectionSettings();
+    loadPrioritySectionSettings();
     
     // 사진우대 섹션 토글 이벤트
     hidePhotoToggle.addEventListener('change', function() {
         savePhotoSectionSettings(this.checked);
+        updateActiveTab();
+    });
+    
+    // 우대등록 섹션 토글 이벤트
+    hidePriorityToggle.addEventListener('change', function() {
+        savePrioritySectionSettings(this.checked);
         updateActiveTab();
     });
     
@@ -72,13 +80,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 우대등록 섹션 설정 로드
+    function loadPrioritySectionSettings() {
+        chrome.storage.sync.get(['hidePrioritySection'], function(result) {
+            const isHidden = result.hidePrioritySection || false;
+            hidePriorityToggle.checked = isHidden;
+        });
+    }
+    
+    // 우대등록 섹션 설정 저장
+    function savePrioritySectionSettings(isHidden) {
+        chrome.storage.sync.set({
+            hidePrioritySection: isHidden
+        }, function() {
+            console.log('Priority section setting saved:', isHidden);
+        });
+    }
+    
     // 활성 탭에 메시지 전송
     function updateActiveTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             if (tabs[0] && tabs[0].url.includes('encar.com')) {
                 chrome.tabs.sendMessage(tabs[0].id, {
-                    action: 'togglePhotoSection',
-                    hidePhotoSection: hidePhotoToggle.checked
+                    action: 'toggleSections',
+                    hidePhotoSection: hidePhotoToggle.checked,
+                    hidePrioritySection: hidePriorityToggle.checked
                 });
             }
         });

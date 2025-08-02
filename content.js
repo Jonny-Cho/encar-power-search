@@ -72,8 +72,13 @@
                             <em>-</em>
                         </li>
                         <li>
-                            <input type="checkbox" class="checkbox" id="schAccident_1" data-enlog-dt-eventnamegroup="필터" ${accidentStatus === 'Y' ? 'checked="checked"' : ''}>
-                            <label for="schAccident_1">사고 있음</label>
+                            <input type="checkbox" class="checkbox" id="schAccident_1" data-enlog-dt-eventnamegroup="필터" ${accidentStatus === 'F' ? 'checked="checked"' : ''}>
+                            <label for="schAccident_1">단순수리</label>
+                            <em>-</em>
+                        </li>
+                        <li>
+                            <input type="checkbox" class="checkbox" id="schAccident_2" data-enlog-dt-eventnamegroup="필터" ${accidentStatus === 'Y' ? 'checked="checked"' : ''}>
+                            <label for="schAccident_2">사고 있음</label>
                             <em>-</em>
                         </li>
                     </ul>
@@ -112,6 +117,8 @@
             // 사고 필터 상태 확인
             if (searchData.action.includes('_.Accident.N.')) {
                 return 'N'; // 무사고
+            } else if (searchData.action.includes('_.Accident.F.')) {
+                return 'F'; // 단순수리
             } else if (searchData.action.includes('_.Accident.Y.')) {
                 return 'Y'; // 사고 있음
             } else {
@@ -166,7 +173,10 @@
                 case 0: // 무사고
                     filterType = 'N';
                     break;
-                case 1: // 사고 있음
+                case 1: // 단순수리
+                    filterType = 'F';
+                    break;
+                case 2: // 사고 있음
                     filterType = 'Y';
                     break;
             }
@@ -199,8 +209,10 @@
             // 기존 사고 필터 제거
             searchData.action = searchData.action
                 .replace(/\._\.Accident\.N\._\./g, '._.')
+                .replace(/\._\.Accident\.F\._\./g, '._.')
                 .replace(/\._\.Accident\.Y\._\./g, '._.')
                 .replace(/\._\.Accident\.N\./g, '')
+                .replace(/\._\.Accident\.F\./g, '')
                 .replace(/\._\.Accident\.Y\./g, '');
             
             // 새 필터 추가
@@ -293,8 +305,8 @@
         const isActive = currentURL.includes('_.Accident.N.');
         
         if (isActive) {
-            // 제거
-            const newURL = currentURL.replace(/\._\.Accident\.N\./g, '');
+            // 제거 - 모든 사고 필터 제거
+            const newURL = currentURL.replace(/\._\.Accident\.[NYF]\./g, '');
             window.location.href = newURL;
         } else {
             // 추가 - 간단한 방법으로 URL에 추가
