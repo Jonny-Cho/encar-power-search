@@ -363,6 +363,66 @@
         }
     });
     
+    // ==============================================
+    // 용도이력 표시 기능 (Usage History Labels)
+    // ==============================================
+    
+    // 차량 정보 추출 함수 (vehicleId, carId)
+    function extractCarInfo() {
+        const carList = [];
+        const carItems = document.querySelectorAll('td.img');
+
+        carItems.forEach(item => {
+            const img = item.querySelector('img.thumb');
+            const link = item.querySelector('a._link');
+
+            if (img && link) {
+                const carInfo = {};
+
+                // VehicleID 추출 (이미지 URL의 파일명에서 언더스코어 앞 숫자)
+                let vehicleId = null;
+                
+                // 먼저 img.src에서 시도
+                let imgMatch = img.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                if (imgMatch) {
+                    vehicleId = imgMatch[1];
+                } else {
+                    // data-src 속성에서 시도 (지연 로딩)
+                    const dataSrc = img.getAttribute('data-src');
+                    if (dataSrc) {
+                        imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                        if (imgMatch) {
+                            vehicleId = imgMatch[1];
+                        }
+                    }
+                }
+                
+                if (vehicleId) {
+                    carInfo.vehicleId = vehicleId;
+                }
+
+                // CarID 추출 (링크 URL의 carid 파라미터 값)
+                const hrefMatch = link.href.match(/carid=(\d+)/);
+                if (hrefMatch) {
+                    carInfo.carId = hrefMatch[1];
+                }
+
+                carList.push(carInfo);
+            }
+        });
+
+        return carList;
+    }
+
+    // 테스트 함수 - 콘솔에서 확인 가능
+    window.testExtractCarInfo = function() {
+        console.log('🔍 [테스트] extractCarInfo 함수 실행...');
+        const result = extractCarInfo();
+        console.log('🔍 [테스트] 결과:', result);
+        console.log('🔍 [테스트] 총 차량 수:', result.length);
+        return result;
+    };
+
     // 초기화 실행
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
