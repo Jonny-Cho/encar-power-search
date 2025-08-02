@@ -414,6 +414,55 @@
         return carList;
     }
 
+    // ==============================================
+    // 용도이력 API 호출 함수
+    // ==============================================
+    
+    async function fetchUsageHistory(vehicleId) {
+        console.log(`🌐 [API] vehicleId ${vehicleId} 용도이력 조회 시작...`);
+        
+        try {
+            const apiUrl = `https://api.encar.com/v1/readside/inspection/vehicle/${vehicleId}`;
+            console.log(`🌐 [API] 호출 URL: ${apiUrl}`);
+            
+            const response = await fetch(apiUrl);
+            console.log(`🌐 [API] 응답 상태: ${response.status}`);
+            
+            if (!response.ok) {
+                console.warn(`⚠️ [API] vehicleId ${vehicleId} - HTTP 오류: ${response.status} ${response.statusText}`);
+                return [];
+            }
+            
+            const data = await response.json();
+            console.log(`🌐 [API] vehicleId ${vehicleId} 응답 데이터:`, data);
+            
+            // 용도이력 추출
+            const usageChangeTypes = data.master?.detail?.usageChangeTypes;
+            
+            if (!usageChangeTypes || !Array.isArray(usageChangeTypes)) {
+                console.log(`ℹ️ [API] vehicleId ${vehicleId} - 용도이력 없음`);
+                return [];
+            }
+            
+            // title 값들만 추출
+            const usageTitles = usageChangeTypes
+                .map(usage => usage.title)
+                .filter(title => title && title.trim() !== '');
+            
+            if (usageTitles.length > 0) {
+                console.log(`✅ [API] vehicleId ${vehicleId} 용도이력 발견:`, usageTitles);
+            } else {
+                console.log(`ℹ️ [API] vehicleId ${vehicleId} - 유효한 용도이력 없음`);
+            }
+            
+            return usageTitles;
+            
+        } catch (error) {
+            console.error(`❌ [API] vehicleId ${vehicleId} 호출 실패:`, error);
+            return [];
+        }
+    }
+
     // 테스트 함수 - 콘솔에서 확인 가능
     window.testExtractCarInfo = function() {
         console.log('🔍 [테스트] extractCarInfo 함수 실행...');
