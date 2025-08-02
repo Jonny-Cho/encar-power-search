@@ -15,6 +15,11 @@
         
         // 섹션 표시/숨김 처리
         handleSectionDisplay();
+        
+        // 용도이력 처리 (약간의 지연 후 실행)
+        setTimeout(() => {
+            processUsageHistory();
+        }, 1000);
     }
     
     // 엔카 검색 페이지 여부 확인
@@ -538,6 +543,88 @@
         } catch (error) {
             console.error(`❌ [API] vehicleId ${vehicleId} 호출 실패:`, error);
             return [];
+        }
+    }
+
+    // ==============================================
+    // 메인 처리 함수 (용도이력 처리)
+    // ==============================================
+
+    async function processUsageHistory() {
+        console.log('🚀 [메인] 용도이력 처리 시작...');
+        
+        try {
+            // 1. 모든 차량 정보 추출
+            const carList = extractCarInfo();
+            console.log(`📊 [메인] 총 ${carList.length}대 차량 발견`);
+            
+            if (carList.length === 0) {
+                console.log('ℹ️ [메인] 처리할 차량이 없음');
+                return;
+            }
+            
+            // 2. vehicleId가 있는 차량만 필터링
+            const validCars = carList.filter(car => car.vehicleId);
+            console.log(`📊 [메인] vehicleId가 있는 차량: ${validCars.length}대`);
+            
+            // 3. 배치 처리를 위한 설정
+            const batchSize = 3; // 동시 처리할 차량 수
+            const delay = 500; // 배치 간 지연 시간 (ms)
+            
+            // 4. 배치별로 처리
+            for (let i = 0; i < validCars.length; i += batchSize) {
+                const batch = validCars.slice(i, i + batchSize);
+                console.log(`🔄 [배치] ${i + 1}-${Math.min(i + batchSize, validCars.length)} 처리 중...`);
+                
+                // 배치 내 차량들을 병렬로 처리
+                const promises = batch.map(async (car) => {
+                    try {
+                        // API 호출
+                        const usageTitles = await fetchUsageHistory(car.vehicleId);
+                        
+                        // DOM 요소 찾기
+                        const vehicleElement = findVehicleElement(car.vehicleId);
+                        
+                        if (vehicleElement && usageTitles.length > 0) {
+                            // 라벨 추가
+                            addUsageLabel(vehicleElement, usageTitles);
+                            return { vehicleId: car.vehicleId, success: true, count: usageTitles.length };
+                        } else {
+                            return { vehicleId: car.vehicleId, success: true, count: 0 };
+                        }
+                    } catch (error) {
+                        console.error(`❌ [배치] vehicleId ${car.vehicleId} 처리 실패:`, error);
+                        return { vehicleId: car.vehicleId, success: false, error: error.message };
+                    }
+                });
+                
+                // 배치 완료 대기
+                const results = await Promise.all(promises);
+                
+                // 결과 로깅
+                results.forEach(result => {
+                    if (result.success && result.count > 0) {
+                        console.log(`✅ [배치] vehicleId ${result.vehicleId}: ${result.count}개 라벨 추가`);
+                    } else if (result.success) {
+                        console.log(`ℹ️ [배치] vehicleId ${result.vehicleId}: 용도이력 없음`);
+                    } else {
+                        console.warn(`⚠️ [배치] vehicleId ${result.vehicleId}: 실패 - ${result.error}`);
+                    }
+                });
+                
+                // 다음 배치 전 지연
+                if (i + batchSize < validCars.length) {
+                    console.log(`⏳ [배치] ${delay}ms 대기 중...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            
+            // 5. 완료 통계
+            const processedCount = validCars.length;
+            console.log(`🎉 [메인] 용도이력 처리 완료: ${processedCount}대 처리`);
+            
+        } catch (error) {
+            console.error('❌ [메인] 용도이력 처리 중 오류 발생:', error);
         }
     }
 
