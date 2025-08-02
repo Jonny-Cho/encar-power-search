@@ -95,6 +95,69 @@
             font-weight: 600;
         }
         
+        /* 토글 스위치 스타일 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-label {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+
         .version-info {
             text-align: center;
             margin-top: 15px;
@@ -141,6 +204,17 @@
                 <span class="status-label">Extension:</span>
                 <span class="status-value active" id="extensionStatus">활성화</span>
             </div>
+        </div>
+    </div>
+    
+    <div class="setting-group">
+        <div class="setting-title">⚙️ 설정</div>
+        <div class="setting-row">
+            <span class="setting-label">사진우대 섹션 숨기기</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="hidePhotoSection">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
     
