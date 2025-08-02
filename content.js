@@ -415,6 +415,46 @@
     }
 
     // ==============================================
+    // 차량 DOM 요소 찾기 함수
+    // ==============================================
+    
+    function findVehicleElement(vehicleId) {
+        console.log(`🔍 [DOM] vehicleId ${vehicleId} 요소 찾기 시작...`);
+        
+        // 모든 차량 이미지 요소 검색
+        const carImages = document.querySelectorAll('td.img img.thumb');
+        
+        for (let img of carImages) {
+            let foundVehicleId = null;
+            
+            // img.src에서 vehicleId 확인
+            let imgMatch = img.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
+            if (imgMatch) {
+                foundVehicleId = imgMatch[1];
+            } else {
+                // data-src 속성에서 확인 (지연 로딩)
+                const dataSrc = img.getAttribute('data-src');
+                if (dataSrc) {
+                    imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                    if (imgMatch) {
+                        foundVehicleId = imgMatch[1];
+                    }
+                }
+            }
+            
+            // vehicleId 일치하면 부모 td.img 요소 반환
+            if (foundVehicleId === String(vehicleId)) {
+                const vehicleElement = img.closest('td.img');
+                console.log(`✅ [DOM] vehicleId ${vehicleId} 요소 발견:`, vehicleElement);
+                return vehicleElement;
+            }
+        }
+        
+        console.warn(`⚠️ [DOM] vehicleId ${vehicleId} 요소를 찾을 수 없음`);
+        return null;
+    }
+
+    // ==============================================
     // 용도이력 API 호출 함수
     // ==============================================
     
