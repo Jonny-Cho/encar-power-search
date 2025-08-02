@@ -13,8 +13,8 @@
         // 필터 버튼 추가
         addAccidentFilterButton();
         
-        // 사진우대 섹션 처리
-        handlePhotoSectionDisplay();
+        // 섹션 표시/숨김 처리
+        handleSectionDisplay();
     }
     
     // 엔카 검색 페이지 여부 확인
@@ -304,11 +304,14 @@
         }
     }
     
-    // 사진우대 섹션 표시/숨김 처리
-    function handlePhotoSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection'], function(result) {
-            const isHidden = result.hidePhotoSection || false;
-            togglePhotoSection(isHidden);
+    // 섹션 표시/숨김 처리
+    function handleSectionDisplay() {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection'], function(result) {
+            const hidePhoto = result.hidePhotoSection || false;
+            const hidePriority = result.hidePrioritySection || false;
+            
+            togglePhotoSection(hidePhoto);
+            togglePrioritySection(hidePriority);
         });
     }
     
@@ -324,10 +327,23 @@
         }
     }
     
+    // 우대등록 섹션 토글
+    function togglePrioritySection(hide) {
+        const prioritySection = document.querySelector('.section.list[data-bind*="specialSearchResults"]:not(.special)');
+        if (prioritySection) {
+            prioritySection.style.display = hide ? 'none' : 'block';
+            console.log('우대등록 섹션', hide ? '숨김' : '표시');
+        } else {
+            // 섹션이 아직 로드되지 않은 경우 재시도
+            setTimeout(() => togglePrioritySection(hide), 1000);
+        }
+    }
+    
     // popup.js에서 오는 메시지 처리
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if (request.action === 'togglePhotoSection') {
+        if (request.action === 'toggleSections') {
             togglePhotoSection(request.hidePhotoSection);
+            togglePrioritySection(request.hidePrioritySection);
             sendResponse({success: true});
         }
     });
