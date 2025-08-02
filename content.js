@@ -455,6 +455,44 @@
     }
 
     // ==============================================
+    // 용도이력 라벨 추가 함수
+    // ==============================================
+    
+    function addUsageLabel(vehicleElement, usageTitles) {
+        console.log('라벨 추가 시작:', usageTitles);
+        
+        // 이미 라벨이 있는지 확인하여 중복 방지
+        const existingLabels = vehicleElement.querySelectorAll('.usage-history-label');
+        existingLabels.forEach(label => label.remove());
+        
+        // 용도이력이 없으면 라벨 추가하지 않음
+        if (!usageTitles || usageTitles.length === 0) {
+            console.log('용도이력 없음');
+            return;
+        }
+        
+        // td.inf에서 service_label_list 찾기
+        const parentTr = vehicleElement.closest('tr');
+        const infTd = parentTr ? parentTr.querySelector('td.inf') : null;
+        const serviceLabelList = infTd ? infTd.querySelector('.service_label_list') : null;
+        
+        if (!serviceLabelList) {
+            console.warn('service_label_list를 찾을 수 없음');
+            return;
+        }
+        
+        // 각 용도이력 타이틀을 라벨로 생성
+        usageTitles.forEach(title => {
+            const label = document.createElement('span');
+            label.className = 'usage-history-label';
+            label.textContent = title;
+            serviceLabelList.appendChild(label);
+        });
+        
+        console.log('라벨 추가 완료:', usageTitles.join(', '));
+    }
+
+    // ==============================================
     // 용도이력 API 호출 함수
     // ==============================================
     
