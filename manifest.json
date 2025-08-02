@@ -9,12 +9,13 @@
   ],
   
   "host_permissions": [
+    "http://www.encar.com/*",
     "https://www.encar.com/*"
   ],
   
   "content_scripts": [
     {
-      "matches": ["https://www.encar.com/*"],
+      "matches": ["http://www.encar.com/*", "https://www.encar.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"],
       "run_at": "document_end"
