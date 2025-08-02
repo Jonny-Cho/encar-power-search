@@ -42,6 +42,9 @@
         // 사고유무 필터 버튼 생성
         const accidentFilter = createAccidentFilterElement();
         
+        // 기본적으로 열린 상태로 설정
+        accidentFilter.classList.add('open');
+        
         // 가격 필터 바로 아래에 추가
         priceFilter.parentNode.insertBefore(accidentFilter, priceFilter.nextSibling);
         
@@ -63,7 +66,7 @@
                     <span class="ic_bul"></span>
                 </a>
             </h5>
-            <div id="schAccident" class="depthpreant" style="display: none;">
+            <div id="schAccident" class="depthpreant" style="display: block;">
                 <div class="deparea">
                     <ul class="deplist">
                         <li>
