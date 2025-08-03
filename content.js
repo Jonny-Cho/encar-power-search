@@ -250,17 +250,18 @@
 
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory', 'showInsuranceHistory'], function(result) {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory', 'showInsuranceHistory', 'showOwnerHistory'], function(result) {
             const hidePhoto = result.hidePhotoSection || false;
             const hidePriority = result.hidePrioritySection || false;
             const showUsageHistory = result.showUsageHistory !== false; // 기본값 true
             const showInsuranceHistory = result.showInsuranceHistory !== false; // 기본값 true
+            const showOwnerHistory = result.showOwnerHistory !== false; // 기본값 true
             
             togglePhotoSection(hidePhoto);
             togglePrioritySection(hidePriority);
             
             // 차량 이력 표시/숨김을 CSS 클래스로 제어
-            updateVehicleHistoryVisibility(showUsageHistory, showInsuranceHistory);
+            updateVehicleHistoryVisibility(showUsageHistory, showInsuranceHistory, showOwnerHistory);
             
             // 차량 이력 처리는 항상 실행
             setTimeout(() => {
@@ -294,7 +295,7 @@
     }
     
     // 차량 이력 표시/숨김을 CSS 클래스로 제어
-    function updateVehicleHistoryVisibility(showUsage, showInsurance) {
+    function updateVehicleHistoryVisibility(showUsage, showInsurance, showOwner) {
         const body = document.body;
         
         // 사용이력 라벨 표시/숨김
@@ -310,6 +311,13 @@
         } else {
             body.classList.add('hide-insurance-labels');
         }
+        
+        // 소유자 변경이력 라벨 표시/숨김
+        if (showOwner) {
+            body.classList.remove('hide-owner-labels');
+        } else {
+            body.classList.add('hide-owner-labels');
+        }
     }
     
     // popup.js에서 오는 메시지 처리
@@ -319,7 +327,7 @@
             togglePrioritySection(request.hidePrioritySection);
             
             // 차량 이력 표시/숨김을 CSS 클래스로 제어
-            updateVehicleHistoryVisibility(request.showUsageHistory, request.showInsuranceHistory);
+            updateVehicleHistoryVisibility(request.showUsageHistory, request.showInsuranceHistory, request.showOwnerHistory);
             
             // 차량 이력 처리는 항상 실행 (아직 처리되지 않은 경우에만)
             setTimeout(() => {
@@ -520,6 +528,15 @@
                 });
             }
             
+            // 소유자 변경이력 확인 (항상 처리)
+            const ownerChanges = data.ownerChanges;
+            if (ownerChanges && Array.isArray(ownerChanges) && ownerChanges.length > 0) {
+                allLabels.push({
+                    text: `소유자 변경 ${ownerChanges.length}회`,
+                    type: "owner"
+                });
+            }
+            
             return allLabels;
             
         } catch (error) {
@@ -611,8 +628,10 @@
         // 기존 차량 이력 라벨 제거 (중복 방지)
         const existingUsageLabels = serviceLabelList.querySelectorAll('.usage-history-label');
         const existingInsuranceLabels = serviceLabelList.querySelectorAll('.insurance-history-label');
+        const existingOwnerLabels = serviceLabelList.querySelectorAll('.owner-change-label');
         existingUsageLabels.forEach(label => label.remove());
         existingInsuranceLabels.forEach(label => label.remove());
+        existingOwnerLabels.forEach(label => label.remove());
         
         // 각 차량 이력 라벨 생성
         vehicleLabels.forEach(labelData => {
@@ -623,6 +642,8 @@
                 label.className = 'usage-history-label';
             } else if (labelData.type === 'insurance') {
                 label.className = 'insurance-history-label';
+            } else if (labelData.type === 'owner') {
+                label.className = 'owner-change-label';
             }
             
             label.textContent = labelData.text;

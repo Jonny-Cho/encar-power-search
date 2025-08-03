@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hidePriorityToggle = document.getElementById('hidePrioritySection');
     const showUsageHistoryToggle = document.getElementById('showUsageHistory');
     const showInsuranceHistoryToggle = document.getElementById('showInsuranceHistory');
+    const showOwnerHistoryToggle = document.getElementById('showOwnerHistory');
     const extendPagerowToggle = document.getElementById('extendPagerow');
     
     // 초기화
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPrioritySectionSettings();
     loadUsageHistorySettings();
     loadInsuranceHistorySettings();
+    loadOwnerHistorySettings();
     loadPagerowSettings();
     
     // 사진우대 섹션 토글 이벤트
@@ -41,6 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 보험사고 이력 표시 토글 이벤트
     showInsuranceHistoryToggle.addEventListener('change', function() {
         saveInsuranceHistorySettings(this.checked);
+        updateActiveTab();
+    });
+    
+    // 소유자 변경이력 표시 토글 이벤트
+    showOwnerHistoryToggle.addEventListener('change', function() {
+        saveOwnerHistorySettings(this.checked);
         updateActiveTab();
     });
     
@@ -155,6 +163,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 소유자 변경이력 표시 설정 로드
+    function loadOwnerHistorySettings() {
+        chrome.storage.sync.get(['showOwnerHistory'], function(result) {
+            const isEnabled = result.showOwnerHistory !== false; // 기본값 true
+            showOwnerHistoryToggle.checked = isEnabled;
+        });
+    }
+    
+    // 소유자 변경이력 표시 설정 저장
+    function saveOwnerHistorySettings(isEnabled) {
+        chrome.storage.sync.set({
+            showOwnerHistory: isEnabled
+        }, function() {
+            console.log('Owner history setting saved:', isEnabled);
+        });
+    }
+    
     // Pagerow 확장 설정 로드
     function loadPagerowSettings() {
         chrome.storage.sync.get(['extendPagerow'], function(result) {
@@ -182,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     hidePrioritySection: hidePriorityToggle.checked,
                     showUsageHistory: showUsageHistoryToggle.checked,
                     showInsuranceHistory: showInsuranceHistoryToggle.checked,
+                    showOwnerHistory: showOwnerHistoryToggle.checked,
                     extendPagerow: extendPagerowToggle.checked
                 });
             }
