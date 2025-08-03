@@ -371,177 +371,34 @@
     // ==============================================
     // 용도이력 표시 기능 (Usage History Labels)
     // ==============================================
-    
-    // 차량 정보 추출 함수 (vehicleId, carId)
-    function extractCarInfo() {
-        const carList = [];
-        const carItems = document.querySelectorAll('td.img');
-
-        carItems.forEach(item => {
-            const img = item.querySelector('img.thumb');
-            const link = item.querySelector('a._link');
-
-            if (img && link) {
-                const carInfo = {};
-
-                // VehicleID 추출 (이미지 URL의 파일명에서 언더스코어 앞 숫자)
-                let vehicleId = null;
-                
-                // 먼저 img.src에서 시도
-                let imgMatch = img.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
-                if (imgMatch) {
-                    vehicleId = imgMatch[1];
-                } else {
-                    // data-src 속성에서 시도 (지연 로딩)
-                    const dataSrc = img.getAttribute('data-src');
-                    if (dataSrc) {
-                        imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
-                        if (imgMatch) {
-                            vehicleId = imgMatch[1];
-                        }
-                    }
-                }
-                
-                if (vehicleId) {
-                    carInfo.vehicleId = vehicleId;
-                }
-
-                // CarID 추출 (링크 URL의 carid 파라미터 값)
-                const hrefMatch = link.href.match(/carid=(\d+)/);
-                if (hrefMatch) {
-                    carInfo.carId = hrefMatch[1];
-                }
-
-                carList.push(carInfo);
-            }
-        });
-
-        return carList;
-    }
-
-    // ==============================================
-    // 차량 DOM 요소 찾기 함수
-    // ==============================================
-    
-    function findVehicleElement(vehicleId) {
-        console.log(`🔍 [DOM] vehicleId ${vehicleId} 요소 찾기 시작...`);
-        
-        // 모든 차량 이미지 요소 검색
-        const carImages = document.querySelectorAll('td.img img.thumb');
-        
-        for (let img of carImages) {
-            let foundVehicleId = null;
-            
-            // img.src에서 vehicleId 확인
-            let imgMatch = img.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
-            if (imgMatch) {
-                foundVehicleId = imgMatch[1];
-            } else {
-                // data-src 속성에서 확인 (지연 로딩)
-                const dataSrc = img.getAttribute('data-src');
-                if (dataSrc) {
-                    imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
-                    if (imgMatch) {
-                        foundVehicleId = imgMatch[1];
-                    }
-                }
-            }
-            
-            // vehicleId 일치하면 부모 td.img 요소 반환
-            if (foundVehicleId === String(vehicleId)) {
-                const vehicleElement = img.closest('td.img');
-                console.log(`✅ [DOM] vehicleId ${vehicleId} 요소 발견:`, vehicleElement);
-                return vehicleElement;
-            }
-        }
-        
-        console.warn(`⚠️ [DOM] vehicleId ${vehicleId} 요소를 찾을 수 없음`);
-        return null;
-    }
-
-    // ==============================================
-    // 용도이력 라벨 추가 함수
-    // ==============================================
-    
-    function addUsageLabel(vehicleElement, usageTitles) {
-        console.log('라벨 추가 시작:', usageTitles);
-        
-        // 이미 라벨이 있는지 확인하여 중복 방지
-        const existingLabels = vehicleElement.querySelectorAll('.usage-history-label');
-        existingLabels.forEach(label => label.remove());
-        
-        // 용도이력이 없으면 라벨 추가하지 않음
-        if (!usageTitles || usageTitles.length === 0) {
-            console.log('용도이력 없음');
-            return;
-        }
-        
-        // td.inf에서 service_label_list 찾기
-        const parentTr = vehicleElement.closest('tr');
-        const infTd = parentTr ? parentTr.querySelector('td.inf') : null;
-        const serviceLabelList = infTd ? infTd.querySelector('.service_label_list') : null;
-        
-        if (!serviceLabelList) {
-            console.warn('service_label_list를 찾을 수 없음');
-            return;
-        }
-        
-        // 각 용도이력 타이틀을 라벨로 생성
-        usageTitles.forEach(title => {
-            const label = document.createElement('span');
-            label.className = 'usage-history-label';
-            label.textContent = title;
-            serviceLabelList.appendChild(label);
-        });
-        
-        console.log('라벨 추가 완료:', usageTitles.join(', '));
-    }
 
     // ==============================================
     // 용도이력 API 호출 함수
     // ==============================================
     
     async function fetchUsageHistory(vehicleId) {
-        console.log(`🌐 [API] vehicleId ${vehicleId} 용도이력 조회 시작...`);
-        
         try {
-            const apiUrl = `https://api.encar.com/v1/readside/inspection/vehicle/${vehicleId}`;
-            console.log(`🌐 [API] 호출 URL: ${apiUrl}`);
-            
+            const apiUrl = `https://api.encar.com/v1/readside/record/vehicle/${vehicleId}/open`;
             const response = await fetch(apiUrl);
-            console.log(`🌐 [API] 응답 상태: ${response.status}`);
             
             if (!response.ok) {
-                console.warn(`⚠️ [API] vehicleId ${vehicleId} - HTTP 오류: ${response.status} ${response.statusText}`);
+                console.error(`Encar Power Search: API 호출 실패 (${response.status}) - vehicleId: ${vehicleId}`);
                 return [];
             }
             
             const data = await response.json();
-            console.log(`🌐 [API] vehicleId ${vehicleId} 응답 데이터:`, data);
+            const usageLabels = [];
             
-            // 용도이력 추출
-            const usageChangeTypes = data.master?.detail?.usageChangeTypes;
-            
-            if (!usageChangeTypes || !Array.isArray(usageChangeTypes)) {
-                console.log(`ℹ️ [API] vehicleId ${vehicleId} - 용도이력 없음`);
-                return [];
+            // 사용이력 확인 (carInfoUse1s에 "3"이 있는 경우)
+            const carInfoUse1s = data.carInfoUse1s;
+            if (carInfoUse1s && Array.isArray(carInfoUse1s) && carInfoUse1s.includes("3")) {
+                usageLabels.push("사용이력있음");
             }
             
-            // title 값들만 추출
-            const usageTitles = usageChangeTypes
-                .map(usage => usage.title)
-                .filter(title => title && title.trim() !== '');
-            
-            if (usageTitles.length > 0) {
-                console.log(`✅ [API] vehicleId ${vehicleId} 용도이력 발견:`, usageTitles);
-            } else {
-                console.log(`ℹ️ [API] vehicleId ${vehicleId} - 유효한 용도이력 없음`);
-            }
-            
-            return usageTitles;
+            return usageLabels;
             
         } catch (error) {
-            console.error(`❌ [API] vehicleId ${vehicleId} 호출 실패:`, error);
+            console.error(`Encar Power Search: API 요청 예외 - vehicleId: ${vehicleId}`, error);
             return [];
         }
     }
@@ -551,91 +408,94 @@
     // ==============================================
 
     async function processUsageHistory() {
-        console.log('🚀 [메인] 용도이력 처리 시작...');
-        
         try {
-            // 1. 모든 차량 정보 추출
-            const carList = extractCarInfo();
-            console.log(`📊 [메인] 총 ${carList.length}대 차량 발견`);
+            const carRows = document.querySelectorAll('tr[data-index]');
             
-            if (carList.length === 0) {
-                console.log('ℹ️ [메인] 처리할 차량이 없음');
+            if (carRows.length === 0) {
                 return;
             }
             
-            // 2. vehicleId가 있는 차량만 필터링
-            const validCars = carList.filter(car => car.vehicleId);
-            console.log(`📊 [메인] vehicleId가 있는 차량: ${validCars.length}대`);
+            // 배치 처리 설정
+            const batchSize = 3;
+            const delay = 500;
             
-            // 3. 배치 처리를 위한 설정
-            const batchSize = 3; // 동시 처리할 차량 수
-            const delay = 500; // 배치 간 지연 시간 (ms)
-            
-            // 4. 배치별로 처리
-            for (let i = 0; i < validCars.length; i += batchSize) {
-                const batch = validCars.slice(i, i + batchSize);
-                console.log(`🔄 [배치] ${i + 1}-${Math.min(i + batchSize, validCars.length)} 처리 중...`);
+            for (let i = 0; i < carRows.length; i += batchSize) {
+                const batch = Array.from(carRows).slice(i, i + batchSize);
                 
-                // 배치 내 차량들을 병렬로 처리
-                const promises = batch.map(async (car) => {
+                const promises = batch.map(async (trElement) => {
                     try {
-                        // API 호출
-                        const usageTitles = await fetchUsageHistory(car.vehicleId);
+                        const firstImg = trElement.querySelector('td.img img.thumb');
+                        if (!firstImg) return { success: false };
                         
-                        // DOM 요소 찾기
-                        const vehicleElement = findVehicleElement(car.vehicleId);
-                        
-                        if (vehicleElement && usageTitles.length > 0) {
-                            // 라벨 추가
-                            addUsageLabel(vehicleElement, usageTitles);
-                            return { vehicleId: car.vehicleId, success: true, count: usageTitles.length };
+                        // vehicleId 추출
+                        let vehicleId = null;
+                        let imgMatch = firstImg.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                        if (imgMatch) {
+                            vehicleId = imgMatch[1];
                         } else {
-                            return { vehicleId: car.vehicleId, success: true, count: 0 };
+                            const dataSrc = firstImg.getAttribute('data-src');
+                            if (dataSrc) {
+                                imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                                if (imgMatch) {
+                                    vehicleId = imgMatch[1];
+                                }
+                            }
                         }
+                        
+                        if (!vehicleId || trElement.hasAttribute('data-usage-processed')) {
+                            return { success: false };
+                        }
+                        
+                        const usageTitles = await fetchUsageHistory(vehicleId);
+                        
+                        if (usageTitles.length > 0) {
+                            const serviceLabelList = trElement.querySelector('td.inf .service_label_list');
+                            if (serviceLabelList) {
+                                addUsageLabelsToRow(serviceLabelList, usageTitles);
+                                trElement.setAttribute('data-usage-processed', 'true');
+                                return { success: true, count: usageTitles.length };
+                            }
+                        } else {
+                            trElement.setAttribute('data-usage-processed', 'true');
+                        }
+                        
+                        return { success: true, count: 0 };
                     } catch (error) {
-                        console.error(`❌ [배치] vehicleId ${car.vehicleId} 처리 실패:`, error);
-                        return { vehicleId: car.vehicleId, success: false, error: error.message };
+                        return { success: false };
                     }
                 });
                 
-                // 배치 완료 대기
-                const results = await Promise.all(promises);
+                await Promise.all(promises);
                 
-                // 결과 로깅
-                results.forEach(result => {
-                    if (result.success && result.count > 0) {
-                        console.log(`✅ [배치] vehicleId ${result.vehicleId}: ${result.count}개 라벨 추가`);
-                    } else if (result.success) {
-                        console.log(`ℹ️ [배치] vehicleId ${result.vehicleId}: 용도이력 없음`);
-                    } else {
-                        console.warn(`⚠️ [배치] vehicleId ${result.vehicleId}: 실패 - ${result.error}`);
-                    }
-                });
-                
-                // 다음 배치 전 지연
-                if (i + batchSize < validCars.length) {
-                    console.log(`⏳ [배치] ${delay}ms 대기 중...`);
+                // 배치 간 지연
+                if (i + batchSize < carRows.length) {
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
             
-            // 5. 완료 통계
-            const processedCount = validCars.length;
-            console.log(`🎉 [메인] 용도이력 처리 완료: ${processedCount}대 처리`);
-            
         } catch (error) {
-            console.error('❌ [메인] 용도이력 처리 중 오류 발생:', error);
+            console.error('Encar Power Search: 용도이력 처리 중 치명적 오류', error);
         }
     }
+    
+    // ==============================================
+    // 개선된 라벨 추가 함수 (TR 단위 처리)
+    // ==============================================
+    
+    function addUsageLabelsToRow(serviceLabelList, usageTitles) {
+        // 기존 용도이력 라벨 제거 (중복 방지)
+        const existingLabels = serviceLabelList.querySelectorAll('.usage-history-label');
+        existingLabels.forEach(label => label.remove());
+        
+        // 각 용도이력 타이틀을 라벨로 생성
+        usageTitles.forEach(title => {
+            const label = document.createElement('span');
+            label.className = 'usage-history-label';
+            label.textContent = title;
+            serviceLabelList.appendChild(label);
+        });
+    }
 
-    // 테스트 함수 - 콘솔에서 확인 가능
-    window.testExtractCarInfo = function() {
-        console.log('🔍 [테스트] extractCarInfo 함수 실행...');
-        const result = extractCarInfo();
-        console.log('🔍 [테스트] 결과:', result);
-        console.log('🔍 [테스트] 총 차량 수:', result.length);
-        return result;
-    };
 
     // 초기화 실행
     if (document.readyState === 'loading') {
