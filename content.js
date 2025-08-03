@@ -16,6 +16,9 @@
         // 섹션 표시/숨김 처리
         handleSectionDisplay();
         
+        // Pagerow 확장 처리
+        handlePagerowExtension();
+        
         // 초기 사용이력 설정 확인하여 처리하지 않음 (handleSectionDisplay에서 처리)
     }
     
@@ -306,9 +309,156 @@
                 existingLabels.forEach(label => label.remove());
             }
             
+            // Pagerow 확장 설정 처리
+            if (request.extendPagerow) {
+                extendPagerowOptions();
+            } else {
+                restorePagerowOptions();
+            }
+            
             sendResponse({success: true});
         }
     });
+    
+    // ==============================================
+    // Pagerow 확장 기능 (500개까지 보기 옵션 추가)
+    // ==============================================
+    
+    // Pagerow 확장 처리 메인 함수
+    function handlePagerowExtension() {
+        chrome.storage.sync.get(['extendPagerow'], function(result) {
+            const extendPagerow = result.extendPagerow !== false; // 기본값 true
+            
+            if (extendPagerow) {
+                extendPagerowOptions();
+            } else {
+                restorePagerowOptions();
+            }
+        });
+    }
+    
+    // Pagerow 옵션 확장 함수
+    function extendPagerowOptions() {
+        const pagerowSelect = findPagerowSelect();
+        if (!pagerowSelect) {
+            // 페이지 로드가 완료되지 않은 경우 재시도
+            setTimeout(extendPagerowOptions, 1000);
+            return;
+        }
+        
+        // 이미 확장되었는지 확인
+        if (pagerowSelect.hasAttribute('data-extended')) {
+            return;
+        }
+        
+        try {
+            // knockout.js data-bind 속성 확장
+            const dataBind = pagerowSelect.getAttribute('data-bind');
+            if (dataBind && dataBind.includes('options: [20, 30, 40, 50]')) {
+                const newDataBind = dataBind.replace(
+                    'options: [20, 30, 40, 50]',
+                    'options: [20, 30, 40, 50, 100, 200, 300, 400, 500]'
+                );
+                pagerowSelect.setAttribute('data-bind', newDataBind);
+            }
+            
+            // 정적 option 태그들 추가
+            const additionalOptions = [100, 200, 300, 400, 500];
+            additionalOptions.forEach(value => {
+                // 이미 존재하는지 확인
+                const existingOption = pagerowSelect.querySelector(`option[value="${value}"]`);
+                if (!existingOption) {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = `${value}개씩 보기`;
+                    pagerowSelect.appendChild(option);
+                }
+            });
+            
+            // 확장 완료 표시
+            pagerowSelect.setAttribute('data-extended', 'true');
+            
+            console.log('Encar Power Search: 페이지당 최대 500개 보기 옵션이 추가되었습니다.');
+            
+        } catch (error) {
+            console.error('Encar Power Search: Pagerow 확장 중 오류 발생:', error);
+        }
+    }
+    
+    // Pagerow 옵션 복원 함수 (토글 해제 시)
+    function restorePagerowOptions() {
+        const pagerowSelect = findPagerowSelect();
+        if (!pagerowSelect) {
+            return;
+        }
+        
+        try {
+            // 확장된 option 태그들 제거 (100, 200, 300, 400, 500)
+            const extendedOptions = [100, 200, 300, 400, 500];
+            extendedOptions.forEach(value => {
+                const option = pagerowSelect.querySelector(`option[value="${value}"]`);
+                if (option) {
+                    option.remove();
+                }
+            });
+            
+            // knockout.js data-bind 속성 복원
+            const dataBind = pagerowSelect.getAttribute('data-bind');
+            if (dataBind && dataBind.includes('options: [20, 30, 40, 50, 100, 200, 300, 400, 500]')) {
+                const restoredDataBind = dataBind.replace(
+                    'options: [20, 30, 40, 50, 100, 200, 300, 400, 500]',
+                    'options: [20, 30, 40, 50]'
+                );
+                pagerowSelect.setAttribute('data-bind', restoredDataBind);
+            }
+            
+            // 현재 선택된 값이 확장 옵션인 경우 기본값으로 변경
+            const currentValue = parseInt(pagerowSelect.value);
+            if (extendedOptions.includes(currentValue)) {
+                pagerowSelect.value = '20'; // 기본값으로 복원
+                
+                // 엔카의 updateLimit 함수 호출 (있는 경우)
+                if (typeof window.updateLimit === 'function') {
+                    window.updateLimit('20');
+                } else {
+                    // 페이지 새로고침으로 변경사항 반영
+                    const event = new Event('change', { bubbles: true });
+                    pagerowSelect.dispatchEvent(event);
+                }
+            }
+            
+            // 확장 상태 해제
+            pagerowSelect.removeAttribute('data-extended');
+            
+            console.log('Encar Power Search: 페이지당 개수 옵션이 원래대로 복원되었습니다.');
+            
+        } catch (error) {
+            console.error('Encar Power Search: Pagerow 복원 중 오류 발생:', error);
+        }
+    }
+    
+    // Pagerow select 요소 찾기
+    function findPagerowSelect() {
+        // 우선순위 1: ID 선택자
+        let pagerowSelect = document.querySelector('#pagerow');
+        if (pagerowSelect) {
+            return pagerowSelect;
+        }
+        
+        // 우선순위 2: data-bind 속성으로 찾기
+        pagerowSelect = document.querySelector('select[data-bind*="normalSearchResults().limit"]');
+        if (pagerowSelect) {
+            return pagerowSelect;
+        }
+        
+        // 우선순위 3: options 패턴으로 찾기
+        pagerowSelect = document.querySelector('select[data-bind*="options: [20, 30, 40, 50]"]');
+        if (pagerowSelect) {
+            return pagerowSelect;
+        }
+        
+        return null;
+    }
     
     // ==============================================
     // 용도이력 표시 기능 (Usage History Labels)
