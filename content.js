@@ -474,7 +474,7 @@
             const response = await fetch(apiUrl);
             
             if (!response.ok) {
-                console.error(`Encar Power Search: API 호출 실패 (${response.status}) - vehicleId: ${vehicleId}`);
+                // 모든 HTTP 에러를 조용히 처리 (로그 없음)
                 return [];
             }
             
@@ -490,7 +490,7 @@
             return usageLabels;
             
         } catch (error) {
-            console.error(`Encar Power Search: API 요청 예외 - vehicleId: ${vehicleId}`, error);
+            // 네트워크 오류도 조용히 처리 (로그 없음)
             return [];
         }
     }
