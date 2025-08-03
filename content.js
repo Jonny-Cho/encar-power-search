@@ -507,8 +507,11 @@
             const allLabels = [];
             
             // 사용이력 확인 (항상 처리)
-            const carInfoUse1s = data.carInfoUse1s;
-            if (carInfoUse1s && Array.isArray(carInfoUse1s) && carInfoUse1s.includes("3")) {
+            const carInfoUse1s = data.carInfoUse1s || [];
+            const hasUsageHistory = Array.isArray(carInfoUse1s) && 
+                                  carInfoUse1s.some(code => ["3", "4"].includes(code));
+            
+            if (hasUsageHistory) {
                 allLabels.push({
                     text: "사용이력있음",
                     type: "usage"
