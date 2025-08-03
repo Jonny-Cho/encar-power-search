@@ -164,6 +164,11 @@ encar-power-search/
 - **본문(body)**: 한글 사용 가능
 - **제목은 50자 이내**, 본문은 72자마다 줄바꿈
 
+#### Co-Author 및 Generated 표시 금지
+- **절대 금지**: "Co-Authored-By: Claude" 또는 "Generated with Claude" 등의 표시
+- **이유**: 프로젝트 순수성 유지 및 Git 히스토리 정리
+- **확인**: 커밋 전 메시지에서 Claude 관련 내용 모두 제거
+
 #### 예시
 ```bash
 feat(content): add no-accident filter button to search results
