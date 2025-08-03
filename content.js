@@ -138,11 +138,6 @@
         }
     }
     
-    // URL에서 무사고 필터 상태 확인 (이전 버전 호환)
-    function checkAccidentFilterInURL() {
-        return getCurrentAccidentStatus() === 'N';
-    }
-    
     // 드롭다운 토글
     function toggleAccidentDropdown(event) {
         event.preventDefault();
@@ -253,77 +248,6 @@
         }
     }
 
-    // 무사고 필터 토글 (이전 버전 호환)
-    function toggleAccidentFilter(event) {
-        event.preventDefault();
-        
-        try {
-            const hash = window.location.hash;
-            let searchData = {};
-            
-            // 기존 URL 데이터 파싱
-            if (hash && hash.startsWith('#!')) {
-                const encodedData = hash.substring(2);
-                const decodedData = decodeURIComponent(encodedData);
-                searchData = JSON.parse(decodedData);
-            }
-            
-            // action 초기화
-            if (!searchData.action) {
-                searchData.action = '(And.Hidden.N.)';
-            }
-            
-            // 무사고 필터 토글
-            if (searchData.action.includes('_.Accident.N.')) {
-                // 제거 - _.Accident.N._ 패턴 제거
-                searchData.action = searchData.action.replace(/\._\.Accident\.N\._\./g, '._.');
-                console.log('무사고 필터 제거');
-            } else {
-                // 추가 - Hidden.N._.XXX 패턴에서 Hidden.N._.Accident.N._.XXX로 변경
-                if (searchData.action.includes('Hidden.N._.')) {
-                    searchData.action = searchData.action.replace('Hidden.N._.', 'Hidden.N._.Accident.N._.');
-                } else if (searchData.action.includes('Hidden.N.')) {
-                    searchData.action = searchData.action.replace('Hidden.N.', 'Hidden.N._.Accident.N.');
-                } else {
-                    searchData.action = searchData.action.replace('(And.', '(And.Hidden.N._.Accident.N._.');
-                }
-                console.log('무사고 필터 추가');
-            }
-            
-            // 페이지를 1로 리셋
-            searchData.page = 1;
-            
-            // URL 업데이트
-            const newEncodedData = encodeURIComponent(JSON.stringify(searchData));
-            const newURL = window.location.pathname + window.location.search + '#!' + newEncodedData;
-            
-            // 페이지 리로드
-            window.location.href = newURL;
-            
-        } catch (error) {
-            console.error('무사고 필터 토글 오류:', error);
-            // 오류 발생 시 간단한 방법으로 처리
-            fallbackToggleAccidentFilter();
-        }
-    }
-    
-    // 대체 토글 방법 (오류 시)
-    function fallbackToggleAccidentFilter() {
-        const currentURL = window.location.href;
-        const isActive = currentURL.includes('_.Accident.N.');
-        
-        if (isActive) {
-            // 제거 - 모든 사고 필터 제거
-            const newURL = currentURL.replace(/\._\.Accident\.[NYF]\./g, '');
-            window.location.href = newURL;
-        } else {
-            // 추가 - 간단한 방법으로 URL에 추가
-            const hash = window.location.hash || '#!{"action":"(And.Hidden.N.)","page":1}';
-            const newURL = currentURL.replace(hash, '') + hash.replace('Hidden.N.', 'Hidden.N._.Accident.N.');
-            window.location.href = newURL;
-        }
-    }
-    
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
         chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection'], function(result) {
