@@ -286,11 +286,31 @@
     background: #c82333 !important;
 }
 
+/* 소유자 변경 이력 라벨 스타일 */
+.owner-change-label {
+    background: #6f42c1 !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    font-size: 11px !important;
+    margin-right: 3px !important;
+    display: inline-block !important;
+    font-weight: normal !important;
+}
+
+.owner-change-label:hover {
+    background: #5a32a3 !important;
+}
+
 /* 토글 제어를 위한 CSS 클래스 */
 .hide-usage-labels .usage-history-label {
     display: none !important;
 }
 
 .hide-insurance-labels .insurance-history-label {
+    display: none !important;
+}
+
+.hide-owner-labels .owner-change-label {
     display: none !important;
 }
