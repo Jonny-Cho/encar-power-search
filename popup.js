@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hidePhotoToggle = document.getElementById('hidePhotoSection');
     const hidePriorityToggle = document.getElementById('hidePrioritySection');
     const showUsageHistoryToggle = document.getElementById('showUsageHistory');
+    const showInsuranceHistoryToggle = document.getElementById('showInsuranceHistory');
     const extendPagerowToggle = document.getElementById('extendPagerow');
     
     // 초기화
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPhotoSectionSettings();
     loadPrioritySectionSettings();
     loadUsageHistorySettings();
+    loadInsuranceHistorySettings();
     loadPagerowSettings();
     
     // 사진우대 섹션 토글 이벤트
@@ -33,6 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 사용이력 표시 토글 이벤트
     showUsageHistoryToggle.addEventListener('change', function() {
         saveUsageHistorySettings(this.checked);
+        updateActiveTab();
+    });
+    
+    // 보험사고 이력 표시 토글 이벤트
+    showInsuranceHistoryToggle.addEventListener('change', function() {
+        saveInsuranceHistorySettings(this.checked);
         updateActiveTab();
     });
     
@@ -130,6 +138,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 보험사고 이력 표시 설정 로드
+    function loadInsuranceHistorySettings() {
+        chrome.storage.sync.get(['showInsuranceHistory'], function(result) {
+            const isEnabled = result.showInsuranceHistory !== false; // 기본값 true
+            showInsuranceHistoryToggle.checked = isEnabled;
+        });
+    }
+    
+    // 보험사고 이력 표시 설정 저장
+    function saveInsuranceHistorySettings(isEnabled) {
+        chrome.storage.sync.set({
+            showInsuranceHistory: isEnabled
+        }, function() {
+            console.log('Insurance history setting saved:', isEnabled);
+        });
+    }
+    
     // Pagerow 확장 설정 로드
     function loadPagerowSettings() {
         chrome.storage.sync.get(['extendPagerow'], function(result) {
@@ -156,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     hidePhotoSection: hidePhotoToggle.checked,
                     hidePrioritySection: hidePriorityToggle.checked,
                     showUsageHistory: showUsageHistoryToggle.checked,
+                    showInsuranceHistory: showInsuranceHistoryToggle.checked,
                     extendPagerow: extendPagerowToggle.checked
                 });
             }

@@ -250,20 +250,22 @@
 
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory'], function(result) {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory', 'showInsuranceHistory'], function(result) {
             const hidePhoto = result.hidePhotoSection || false;
             const hidePriority = result.hidePrioritySection || false;
             const showUsageHistory = result.showUsageHistory !== false; // 기본값 true
+            const showInsuranceHistory = result.showInsuranceHistory !== false; // 기본값 true
             
             togglePhotoSection(hidePhoto);
             togglePrioritySection(hidePriority);
             
-            // 사용이력 설정에 따라 처리
-            if (showUsageHistory) {
-                setTimeout(() => {
-                    processUsageHistory();
-                }, 1000);
-            }
+            // 차량 이력 표시/숨김을 CSS 클래스로 제어
+            updateVehicleHistoryVisibility(showUsageHistory, showInsuranceHistory);
+            
+            // 차량 이력 처리는 항상 실행
+            setTimeout(() => {
+                processUsageHistory();
+            }, 1000);
         });
     }
     
@@ -291,23 +293,38 @@
         }
     }
     
+    // 차량 이력 표시/숨김을 CSS 클래스로 제어
+    function updateVehicleHistoryVisibility(showUsage, showInsurance) {
+        const body = document.body;
+        
+        // 사용이력 라벨 표시/숨김
+        if (showUsage) {
+            body.classList.remove('hide-usage-labels');
+        } else {
+            body.classList.add('hide-usage-labels');
+        }
+        
+        // 보험사고 라벨 표시/숨김
+        if (showInsurance) {
+            body.classList.remove('hide-insurance-labels');
+        } else {
+            body.classList.add('hide-insurance-labels');
+        }
+    }
+    
     // popup.js에서 오는 메시지 처리
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.action === 'toggleSections') {
             togglePhotoSection(request.hidePhotoSection);
             togglePrioritySection(request.hidePrioritySection);
             
-            // 사용이력 설정 처리
-            if (request.showUsageHistory) {
-                // 사용이력 표시 활성화
-                setTimeout(() => {
-                    processUsageHistory();
-                }, 500);
-            } else {
-                // 사용이력 라벨 제거
-                const existingLabels = document.querySelectorAll('.usage-history-label');
-                existingLabels.forEach(label => label.remove());
-            }
+            // 차량 이력 표시/숨김을 CSS 클래스로 제어
+            updateVehicleHistoryVisibility(request.showUsageHistory, request.showInsuranceHistory);
+            
+            // 차량 이력 처리는 항상 실행 (아직 처리되지 않은 경우에만)
+            setTimeout(() => {
+                processUsageHistory();
+            }, 500);
             
             // Pagerow 확장 설정 처리
             if (request.extendPagerow) {
@@ -465,10 +482,10 @@
     // ==============================================
 
     // ==============================================
-    // 용도이력 API 호출 함수
+    // 차량 이력 API 호출 함수 (용도이력 + 보험사고 이력)
     // ==============================================
     
-    async function fetchUsageHistory(vehicleId) {
+    async function fetchVehicleHistory(vehicleId) {
         try {
             const apiUrl = `https://api.encar.com/v1/readside/record/vehicle/${vehicleId}/open`;
             const response = await fetch(apiUrl);
@@ -479,15 +496,31 @@
             }
             
             const data = await response.json();
-            const usageLabels = [];
+            const allLabels = [];
             
-            // 사용이력 확인 (carInfoUse1s에 "3"이 있는 경우)
+            // 사용이력 확인 (항상 처리)
             const carInfoUse1s = data.carInfoUse1s;
             if (carInfoUse1s && Array.isArray(carInfoUse1s) && carInfoUse1s.includes("3")) {
-                usageLabels.push("사용이력있음");
+                allLabels.push({
+                    text: "사용이력있음",
+                    type: "usage"
+                });
             }
             
-            return usageLabels;
+            // 보험사고 이력 확인 (항상 처리)
+            const myAccidents = data.accidents?.filter(acc => acc.type === "1" || acc.type === "2") || [];
+            if (myAccidents.length > 0) {
+                const totalCost = myAccidents.reduce((sum, acc) => 
+                    sum + (acc.partCost || 0) + (acc.laborCost || 0) + (acc.paintingCost || 0), 0
+                );
+                
+                allLabels.push({
+                    text: `내차 보험사고 ${myAccidents.length}회 / ${totalCost.toLocaleString()}원`,
+                    type: "insurance"
+                });
+            }
+            
+            return allLabels;
             
         } catch (error) {
             // 네트워크 오류도 조용히 처리 (로그 없음)
@@ -496,7 +529,7 @@
     }
 
     // ==============================================
-    // 메인 처리 함수 (용도이력 처리)
+    // 메인 처리 함수 (차량 이력 처리)
     // ==============================================
 
     async function processUsageHistory() {
@@ -538,14 +571,14 @@
                             return { success: false };
                         }
                         
-                        const usageTitles = await fetchUsageHistory(vehicleId);
+                        const vehicleLabels = await fetchVehicleHistory(vehicleId);
                         
-                        if (usageTitles.length > 0) {
+                        if (vehicleLabels.length > 0) {
                             const serviceLabelList = trElement.querySelector('td.inf .service_label_list');
                             if (serviceLabelList) {
-                                addUsageLabelsToRow(serviceLabelList, usageTitles);
+                                addVehicleLabelsToRow(serviceLabelList, vehicleLabels);
                                 trElement.setAttribute('data-usage-processed', 'true');
-                                return { success: true, count: usageTitles.length };
+                                return { success: true, count: vehicleLabels.length };
                             }
                         } else {
                             trElement.setAttribute('data-usage-processed', 'true');
@@ -571,19 +604,28 @@
     }
     
     // ==============================================
-    // 개선된 라벨 추가 함수 (TR 단위 처리)
+    // 차량 이력 라벨 추가 함수 (TR 단위 처리)
     // ==============================================
     
-    function addUsageLabelsToRow(serviceLabelList, usageTitles) {
-        // 기존 용도이력 라벨 제거 (중복 방지)
-        const existingLabels = serviceLabelList.querySelectorAll('.usage-history-label');
-        existingLabels.forEach(label => label.remove());
+    function addVehicleLabelsToRow(serviceLabelList, vehicleLabels) {
+        // 기존 차량 이력 라벨 제거 (중복 방지)
+        const existingUsageLabels = serviceLabelList.querySelectorAll('.usage-history-label');
+        const existingInsuranceLabels = serviceLabelList.querySelectorAll('.insurance-history-label');
+        existingUsageLabels.forEach(label => label.remove());
+        existingInsuranceLabels.forEach(label => label.remove());
         
-        // 각 용도이력 타이틀을 라벨로 생성
-        usageTitles.forEach(title => {
+        // 각 차량 이력 라벨 생성
+        vehicleLabels.forEach(labelData => {
             const label = document.createElement('span');
-            label.className = 'usage-history-label';
-            label.textContent = title;
+            
+            // 타입에 따라 다른 CSS 클래스 적용
+            if (labelData.type === 'usage') {
+                label.className = 'usage-history-label';
+            } else if (labelData.type === 'insurance') {
+                label.className = 'insurance-history-label';
+            }
+            
+            label.textContent = labelData.text;
             serviceLabelList.appendChild(label);
         });
     }

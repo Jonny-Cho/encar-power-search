@@ -269,3 +269,28 @@
 .usage-history-label:hover {
     background: #e55a2b !important;
 }
+
+/* 보험사고 이력 라벨 스타일 */
+.insurance-history-label {
+    background: #dc3545 !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    font-size: 11px !important;
+    margin-right: 3px !important;
+    display: inline-block !important;
+    font-weight: normal !important;
+}
+
+.insurance-history-label:hover {
+    background: #c82333 !important;
+}
+
+/* 토글 제어를 위한 CSS 클래스 */
+.hide-usage-labels .usage-history-label {
+    display: none !important;
+}
+
+.hide-insurance-labels .insurance-history-label {
+    display: none !important;
+}
