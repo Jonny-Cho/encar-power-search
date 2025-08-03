@@ -416,7 +416,7 @@
             }
             
             // 배치 처리 설정
-            const batchSize = 3;
+            const batchSize = 200;
             const delay = 500;
             
             for (let i = 0; i < carRows.length; i += batchSize) {
