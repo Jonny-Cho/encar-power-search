@@ -7,12 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const versionInfoElement = document.getElementById('versionInfo');
     const hidePhotoToggle = document.getElementById('hidePhotoSection');
     const hidePriorityToggle = document.getElementById('hidePrioritySection');
+    const showUsageHistoryToggle = document.getElementById('showUsageHistory');
     
     // 초기화
     loadVersionInfo();
     checkPageStatus();
     loadPhotoSectionSettings();
     loadPrioritySectionSettings();
+    loadUsageHistorySettings();
     
     // 사진우대 섹션 토글 이벤트
     hidePhotoToggle.addEventListener('change', function() {
@@ -23,6 +25,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 우대등록 섹션 토글 이벤트
     hidePriorityToggle.addEventListener('change', function() {
         savePrioritySectionSettings(this.checked);
+        updateActiveTab();
+    });
+    
+    // 사용이력 표시 토글 이벤트
+    showUsageHistoryToggle.addEventListener('change', function() {
+        saveUsageHistorySettings(this.checked);
         updateActiveTab();
     });
     
@@ -97,6 +105,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 사용이력 표시 설정 로드
+    function loadUsageHistorySettings() {
+        chrome.storage.sync.get(['showUsageHistory'], function(result) {
+            const isEnabled = result.showUsageHistory !== false; // 기본값 true
+            showUsageHistoryToggle.checked = isEnabled;
+        });
+    }
+    
+    // 사용이력 표시 설정 저장
+    function saveUsageHistorySettings(isEnabled) {
+        chrome.storage.sync.set({
+            showUsageHistory: isEnabled
+        }, function() {
+            console.log('Usage history setting saved:', isEnabled);
+        });
+    }
+    
     // 활성 탭에 메시지 전송
     function updateActiveTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -104,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 chrome.tabs.sendMessage(tabs[0].id, {
                     action: 'toggleSections',
                     hidePhotoSection: hidePhotoToggle.checked,
-                    hidePrioritySection: hidePriorityToggle.checked
+                    hidePrioritySection: hidePriorityToggle.checked,
+                    showUsageHistory: showUsageHistoryToggle.checked
                 });
             }
         });

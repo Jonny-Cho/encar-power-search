@@ -16,10 +16,7 @@
         // 섹션 표시/숨김 처리
         handleSectionDisplay();
         
-        // 용도이력 처리 (약간의 지연 후 실행)
-        setTimeout(() => {
-            processUsageHistory();
-        }, 1000);
+        // 초기 사용이력 설정 확인하여 처리하지 않음 (handleSectionDisplay에서 처리)
     }
     
     // 엔카 검색 페이지 여부 확인
@@ -250,12 +247,20 @@
 
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection'], function(result) {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory'], function(result) {
             const hidePhoto = result.hidePhotoSection || false;
             const hidePriority = result.hidePrioritySection || false;
+            const showUsageHistory = result.showUsageHistory !== false; // 기본값 true
             
             togglePhotoSection(hidePhoto);
             togglePrioritySection(hidePriority);
+            
+            // 사용이력 설정에 따라 처리
+            if (showUsageHistory) {
+                setTimeout(() => {
+                    processUsageHistory();
+                }, 1000);
+            }
         });
     }
     
@@ -288,6 +293,19 @@
         if (request.action === 'toggleSections') {
             togglePhotoSection(request.hidePhotoSection);
             togglePrioritySection(request.hidePrioritySection);
+            
+            // 사용이력 설정 처리
+            if (request.showUsageHistory) {
+                // 사용이력 표시 활성화
+                setTimeout(() => {
+                    processUsageHistory();
+                }, 500);
+            } else {
+                // 사용이력 라벨 제거
+                const existingLabels = document.querySelectorAll('.usage-history-label');
+                existingLabels.forEach(label => label.remove());
+            }
+            
             sendResponse({success: true});
         }
     });
