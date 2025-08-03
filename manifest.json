@@ -11,7 +11,8 @@
   
   "host_permissions": [
     "http://www.encar.com/*",
-    "https://www.encar.com/*"
+    "https://www.encar.com/*",
+    "https://api.encar.com/*"
   ],
   
   "content_scripts": [

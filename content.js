@@ -15,6 +15,8 @@
         
         // 섹션 표시/숨김 처리
         handleSectionDisplay();
+        
+        // 초기 사용이력 설정 확인하여 처리하지 않음 (handleSectionDisplay에서 처리)
     }
     
     // 엔카 검색 페이지 여부 확인
@@ -133,11 +135,6 @@
         }
     }
     
-    // URL에서 무사고 필터 상태 확인 (이전 버전 호환)
-    function checkAccidentFilterInURL() {
-        return getCurrentAccidentStatus() === 'N';
-    }
-    
     // 드롭다운 토글
     function toggleAccidentDropdown(event) {
         event.preventDefault();
@@ -248,85 +245,22 @@
         }
     }
 
-    // 무사고 필터 토글 (이전 버전 호환)
-    function toggleAccidentFilter(event) {
-        event.preventDefault();
-        
-        try {
-            const hash = window.location.hash;
-            let searchData = {};
-            
-            // 기존 URL 데이터 파싱
-            if (hash && hash.startsWith('#!')) {
-                const encodedData = hash.substring(2);
-                const decodedData = decodeURIComponent(encodedData);
-                searchData = JSON.parse(decodedData);
-            }
-            
-            // action 초기화
-            if (!searchData.action) {
-                searchData.action = '(And.Hidden.N.)';
-            }
-            
-            // 무사고 필터 토글
-            if (searchData.action.includes('_.Accident.N.')) {
-                // 제거 - _.Accident.N._ 패턴 제거
-                searchData.action = searchData.action.replace(/\._\.Accident\.N\._\./g, '._.');
-                console.log('무사고 필터 제거');
-            } else {
-                // 추가 - Hidden.N._.XXX 패턴에서 Hidden.N._.Accident.N._.XXX로 변경
-                if (searchData.action.includes('Hidden.N._.')) {
-                    searchData.action = searchData.action.replace('Hidden.N._.', 'Hidden.N._.Accident.N._.');
-                } else if (searchData.action.includes('Hidden.N.')) {
-                    searchData.action = searchData.action.replace('Hidden.N.', 'Hidden.N._.Accident.N.');
-                } else {
-                    searchData.action = searchData.action.replace('(And.', '(And.Hidden.N._.Accident.N._.');
-                }
-                console.log('무사고 필터 추가');
-            }
-            
-            // 페이지를 1로 리셋
-            searchData.page = 1;
-            
-            // URL 업데이트
-            const newEncodedData = encodeURIComponent(JSON.stringify(searchData));
-            const newURL = window.location.pathname + window.location.search + '#!' + newEncodedData;
-            
-            // 페이지 리로드
-            window.location.href = newURL;
-            
-        } catch (error) {
-            console.error('무사고 필터 토글 오류:', error);
-            // 오류 발생 시 간단한 방법으로 처리
-            fallbackToggleAccidentFilter();
-        }
-    }
-    
-    // 대체 토글 방법 (오류 시)
-    function fallbackToggleAccidentFilter() {
-        const currentURL = window.location.href;
-        const isActive = currentURL.includes('_.Accident.N.');
-        
-        if (isActive) {
-            // 제거 - 모든 사고 필터 제거
-            const newURL = currentURL.replace(/\._\.Accident\.[NYF]\./g, '');
-            window.location.href = newURL;
-        } else {
-            // 추가 - 간단한 방법으로 URL에 추가
-            const hash = window.location.hash || '#!{"action":"(And.Hidden.N.)","page":1}';
-            const newURL = currentURL.replace(hash, '') + hash.replace('Hidden.N.', 'Hidden.N._.Accident.N.');
-            window.location.href = newURL;
-        }
-    }
-    
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection'], function(result) {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory'], function(result) {
             const hidePhoto = result.hidePhotoSection || false;
             const hidePriority = result.hidePrioritySection || false;
+            const showUsageHistory = result.showUsageHistory !== false; // 기본값 true
             
             togglePhotoSection(hidePhoto);
             togglePrioritySection(hidePriority);
+            
+            // 사용이력 설정에 따라 처리
+            if (showUsageHistory) {
+                setTimeout(() => {
+                    processUsageHistory();
+                }, 1000);
+            }
         });
     }
     
@@ -359,10 +293,152 @@
         if (request.action === 'toggleSections') {
             togglePhotoSection(request.hidePhotoSection);
             togglePrioritySection(request.hidePrioritySection);
+            
+            // 사용이력 설정 처리
+            if (request.showUsageHistory) {
+                // 사용이력 표시 활성화
+                setTimeout(() => {
+                    processUsageHistory();
+                }, 500);
+            } else {
+                // 사용이력 라벨 제거
+                const existingLabels = document.querySelectorAll('.usage-history-label');
+                existingLabels.forEach(label => label.remove());
+            }
+            
             sendResponse({success: true});
         }
     });
     
+    // ==============================================
+    // 용도이력 표시 기능 (Usage History Labels)
+    // ==============================================
+
+    // ==============================================
+    // 용도이력 API 호출 함수
+    // ==============================================
+    
+    async function fetchUsageHistory(vehicleId) {
+        try {
+            const apiUrl = `https://api.encar.com/v1/readside/record/vehicle/${vehicleId}/open`;
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                console.error(`Encar Power Search: API 호출 실패 (${response.status}) - vehicleId: ${vehicleId}`);
+                return [];
+            }
+            
+            const data = await response.json();
+            const usageLabels = [];
+            
+            // 사용이력 확인 (carInfoUse1s에 "3"이 있는 경우)
+            const carInfoUse1s = data.carInfoUse1s;
+            if (carInfoUse1s && Array.isArray(carInfoUse1s) && carInfoUse1s.includes("3")) {
+                usageLabels.push("사용이력있음");
+            }
+            
+            return usageLabels;
+            
+        } catch (error) {
+            console.error(`Encar Power Search: API 요청 예외 - vehicleId: ${vehicleId}`, error);
+            return [];
+        }
+    }
+
+    // ==============================================
+    // 메인 처리 함수 (용도이력 처리)
+    // ==============================================
+
+    async function processUsageHistory() {
+        try {
+            const carRows = document.querySelectorAll('tr[data-index]');
+            
+            if (carRows.length === 0) {
+                return;
+            }
+            
+            // 배치 처리 설정
+            const batchSize = 200;
+            const delay = 500;
+            
+            for (let i = 0; i < carRows.length; i += batchSize) {
+                const batch = Array.from(carRows).slice(i, i + batchSize);
+                
+                const promises = batch.map(async (trElement) => {
+                    try {
+                        const firstImg = trElement.querySelector('td.img img.thumb');
+                        if (!firstImg) return { success: false };
+                        
+                        // vehicleId 추출
+                        let vehicleId = null;
+                        let imgMatch = firstImg.src.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                        if (imgMatch) {
+                            vehicleId = imgMatch[1];
+                        } else {
+                            const dataSrc = firstImg.getAttribute('data-src');
+                            if (dataSrc) {
+                                imgMatch = dataSrc.match(/pic\d+\/(\d+)_\d+\.jpg/);
+                                if (imgMatch) {
+                                    vehicleId = imgMatch[1];
+                                }
+                            }
+                        }
+                        
+                        if (!vehicleId || trElement.hasAttribute('data-usage-processed')) {
+                            return { success: false };
+                        }
+                        
+                        const usageTitles = await fetchUsageHistory(vehicleId);
+                        
+                        if (usageTitles.length > 0) {
+                            const serviceLabelList = trElement.querySelector('td.inf .service_label_list');
+                            if (serviceLabelList) {
+                                addUsageLabelsToRow(serviceLabelList, usageTitles);
+                                trElement.setAttribute('data-usage-processed', 'true');
+                                return { success: true, count: usageTitles.length };
+                            }
+                        } else {
+                            trElement.setAttribute('data-usage-processed', 'true');
+                        }
+                        
+                        return { success: true, count: 0 };
+                    } catch (error) {
+                        return { success: false };
+                    }
+                });
+                
+                await Promise.all(promises);
+                
+                // 배치 간 지연
+                if (i + batchSize < carRows.length) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            
+        } catch (error) {
+            console.error('Encar Power Search: 용도이력 처리 중 치명적 오류', error);
+        }
+    }
+    
+    // ==============================================
+    // 개선된 라벨 추가 함수 (TR 단위 처리)
+    // ==============================================
+    
+    function addUsageLabelsToRow(serviceLabelList, usageTitles) {
+        // 기존 용도이력 라벨 제거 (중복 방지)
+        const existingLabels = serviceLabelList.querySelectorAll('.usage-history-label');
+        existingLabels.forEach(label => label.remove());
+        
+        // 각 용도이력 타이틀을 라벨로 생성
+        usageTitles.forEach(title => {
+            const label = document.createElement('span');
+            label.className = 'usage-history-label';
+            label.textContent = title;
+            serviceLabelList.appendChild(label);
+        });
+    }
+
+
     // 초기화 실행
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

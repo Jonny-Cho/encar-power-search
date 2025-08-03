@@ -253,3 +253,19 @@
     transform: none !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
+
+/* 용도이력 라벨 스타일 */
+.usage-history-label {
+    background: #ff6b35 !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    font-size: 11px !important;
+    margin-right: 3px !important;
+    display: inline-block !important;
+    font-weight: normal !important;
+}
+
+.usage-history-label:hover {
+    background: #e55a2b !important;
+}
