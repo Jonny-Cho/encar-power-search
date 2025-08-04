@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showUsageHistoryToggle = document.getElementById('showUsageHistory');
     const showInsuranceHistoryToggle = document.getElementById('showInsuranceHistory');
     const showOwnerHistoryToggle = document.getElementById('showOwnerHistory');
+    const showNoInsuranceHistoryToggle = document.getElementById('showNoInsuranceHistory');
     const extendPagerowToggle = document.getElementById('extendPagerow');
     
     // 초기화
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUsageHistorySettings();
     loadInsuranceHistorySettings();
     loadOwnerHistorySettings();
+    loadNoInsuranceHistorySettings();
     loadPagerowSettings();
     
     // 사진우대 섹션 토글 이벤트
@@ -49,6 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 소유자 변경이력 표시 토글 이벤트
     showOwnerHistoryToggle.addEventListener('change', function() {
         saveOwnerHistorySettings(this.checked);
+        updateActiveTab();
+    });
+    
+    // 보험 미가입기간 표시 토글 이벤트
+    showNoInsuranceHistoryToggle.addEventListener('change', function() {
+        saveNoInsuranceHistorySettings(this.checked);
         updateActiveTab();
     });
     
@@ -180,6 +188,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 보험 미가입기간 표시 설정 로드
+    function loadNoInsuranceHistorySettings() {
+        chrome.storage.sync.get(['showNoInsuranceHistory'], function(result) {
+            const isEnabled = result.showNoInsuranceHistory !== false; // 기본값 true
+            showNoInsuranceHistoryToggle.checked = isEnabled;
+        });
+    }
+    
+    // 보험 미가입기간 표시 설정 저장
+    function saveNoInsuranceHistorySettings(isEnabled) {
+        chrome.storage.sync.set({
+            showNoInsuranceHistory: isEnabled
+        }, function() {
+            console.log('No insurance history setting saved:', isEnabled);
+        });
+    }
+    
     // Pagerow 확장 설정 로드
     function loadPagerowSettings() {
         chrome.storage.sync.get(['extendPagerow'], function(result) {
@@ -208,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showUsageHistory: showUsageHistoryToggle.checked,
                     showInsuranceHistory: showInsuranceHistoryToggle.checked,
                     showOwnerHistory: showOwnerHistoryToggle.checked,
+                    showNoInsuranceHistory: showNoInsuranceHistoryToggle.checked,
                     extendPagerow: extendPagerowToggle.checked
                 });
             }

@@ -302,10 +302,27 @@
     background: #5a32a3 !important;
 }
 
+/* 보험 미가입 기간 라벨 스타일 */
+.noinsurance-label {
+    background: #e83e8c !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    font-size: 11px !important;
+    margin-right: 3px !important;
+    display: inline-block !important;
+    font-weight: normal !important;
+}
+
+.noinsurance-label:hover {
+    background: #d91a72 !important;
+}
+
 /* 사진우대영역 라벨 크기 조정 (small_label과 일치) */
 #sr_photo .usage-history-label,
 #sr_photo .insurance-history-label,
-#sr_photo .owner-change-label {
+#sr_photo .owner-change-label,
+#sr_photo .noinsurance-label {
     font-size: 10px !important;
     padding: 1px 4px !important;
     margin-right: 2px !important;
@@ -321,5 +338,9 @@
 }
 
 .hide-owner-labels .owner-change-label {
+    display: none !important;
+}
+
+.hide-noinsurance-labels .noinsurance-label {
     display: none !important;
 }
