@@ -27,7 +27,12 @@ zip -r "$ZIP_NAME" . \
   -x "build.sh" \
   -x "node_modules/*" \
   -x "*.log" \
-  -x ".DS_Store"
+  -x ".DS_Store" \
+  -x "archive/*" \
+  -x ".claude/*" \
+  -x ".idea/*" \
+  -x "emoji-icon-generator.html" \
+  -x "screenshot.png"
 
 echo "✅ Created: $ZIP_NAME"
 echo "🚀 Ready for Chrome Web Store upload!"
