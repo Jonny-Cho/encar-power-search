@@ -554,9 +554,14 @@
 
     async function processUsageHistory() {
         try {
+            // 일반 검색 결과와 사진우대영역 차량들을 모두 가져오기
             const carRows = document.querySelectorAll('tr[data-index]');
+            const photoRows = document.querySelectorAll('#sr_photo li[data-index]');
             
-            if (carRows.length === 0) {
+            // 두 NodeList를 배열로 합치기
+            const allCarElements = [...Array.from(carRows), ...Array.from(photoRows)];
+            
+            if (allCarElements.length === 0) {
                 return;
             }
             
@@ -564,12 +569,23 @@
             const batchSize = 200;
             const delay = 500;
             
-            for (let i = 0; i < carRows.length; i += batchSize) {
-                const batch = Array.from(carRows).slice(i, i + batchSize);
+            for (let i = 0; i < allCarElements.length; i += batchSize) {
+                const batch = allCarElements.slice(i, i + batchSize);
                 
-                const promises = batch.map(async (trElement) => {
+                const promises = batch.map(async (element) => {
                     try {
-                        const firstImg = trElement.querySelector('td.img img.thumb');
+                        // 일반 검색 결과인지 사진우대영역인지 구분
+                        const isPhotoArea = element.tagName === 'LI';
+                        let firstImg;
+                        
+                        if (isPhotoArea) {
+                            // 사진우대영역: li > a > span.img > span > img.thumb
+                            firstImg = element.querySelector('img.thumb');
+                        } else {
+                            // 일반 검색결과: tr > td.img > img.thumb
+                            firstImg = element.querySelector('td.img img.thumb');
+                        }
+                        
                         if (!firstImg) return { success: false };
                         
                         // vehicleId 추출
@@ -587,21 +603,30 @@
                             }
                         }
                         
-                        if (!vehicleId || trElement.hasAttribute('data-usage-processed')) {
+                        if (!vehicleId || element.hasAttribute('data-usage-processed')) {
                             return { success: false };
                         }
                         
                         const vehicleLabels = await fetchVehicleHistory(vehicleId);
                         
                         if (vehicleLabels.length > 0) {
-                            const serviceLabelList = trElement.querySelector('td.inf .service_label_list');
+                            let serviceLabelList;
+                            
+                            if (isPhotoArea) {
+                                // 사진우대영역: li > a > span.service_label_list
+                                serviceLabelList = element.querySelector('.service_label_list');
+                            } else {
+                                // 일반 검색결과: tr > td.inf > .service_label_list
+                                serviceLabelList = element.querySelector('td.inf .service_label_list');
+                            }
+                            
                             if (serviceLabelList) {
                                 addVehicleLabelsToRow(serviceLabelList, vehicleLabels);
-                                trElement.setAttribute('data-usage-processed', 'true');
+                                element.setAttribute('data-usage-processed', 'true');
                                 return { success: true, count: vehicleLabels.length };
                             }
                         } else {
-                            trElement.setAttribute('data-usage-processed', 'true');
+                            element.setAttribute('data-usage-processed', 'true');
                         }
                         
                         return { success: true, count: 0 };
@@ -613,7 +638,7 @@
                 await Promise.all(promises);
                 
                 // 배치 간 지연
-                if (i + batchSize < carRows.length) {
+                if (i + batchSize < allCarElements.length) {
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
