@@ -250,18 +250,19 @@
 
     // 섹션 표시/숨김 처리
     function handleSectionDisplay() {
-        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory', 'showInsuranceHistory', 'showOwnerHistory'], function(result) {
+        chrome.storage.sync.get(['hidePhotoSection', 'hidePrioritySection', 'showUsageHistory', 'showInsuranceHistory', 'showOwnerHistory', 'showNoInsuranceHistory'], function(result) {
             const hidePhoto = result.hidePhotoSection || false;
             const hidePriority = result.hidePrioritySection || false;
             const showUsageHistory = result.showUsageHistory !== false; // 기본값 true
             const showInsuranceHistory = result.showInsuranceHistory !== false; // 기본값 true
             const showOwnerHistory = result.showOwnerHistory !== false; // 기본값 true
+            const showNoInsuranceHistory = result.showNoInsuranceHistory !== false; // 기본값 true
             
             togglePhotoSection(hidePhoto);
             togglePrioritySection(hidePriority);
             
             // 차량 이력 표시/숨김을 CSS 클래스로 제어
-            updateVehicleHistoryVisibility(showUsageHistory, showInsuranceHistory, showOwnerHistory);
+            updateVehicleHistoryVisibility(showUsageHistory, showInsuranceHistory, showOwnerHistory, showNoInsuranceHistory);
             
             // 차량 이력 처리는 항상 실행
             setTimeout(() => {
@@ -295,7 +296,7 @@
     }
     
     // 차량 이력 표시/숨김을 CSS 클래스로 제어
-    function updateVehicleHistoryVisibility(showUsage, showInsurance, showOwner) {
+    function updateVehicleHistoryVisibility(showUsage, showInsurance, showOwner, showNoInsurance) {
         const body = document.body;
         
         // 사용이력 라벨 표시/숨김
@@ -318,6 +319,13 @@
         } else {
             body.classList.add('hide-owner-labels');
         }
+        
+        // 보험 미가입기간 라벨 표시/숨김
+        if (showNoInsurance) {
+            body.classList.remove('hide-noinsurance-labels');
+        } else {
+            body.classList.add('hide-noinsurance-labels');
+        }
     }
     
     // popup.js에서 오는 메시지 처리
@@ -327,7 +335,7 @@
             togglePrioritySection(request.hidePrioritySection);
             
             // 차량 이력 표시/숨김을 CSS 클래스로 제어
-            updateVehicleHistoryVisibility(request.showUsageHistory, request.showInsuranceHistory, request.showOwnerHistory);
+            updateVehicleHistoryVisibility(request.showUsageHistory, request.showInsuranceHistory, request.showOwnerHistory, request.showNoInsuranceHistory);
             
             // 차량 이력 처리는 항상 실행 (아직 처리되지 않은 경우에만)
             setTimeout(() => {
@@ -490,6 +498,50 @@
     // ==============================================
 
     // ==============================================
+    // 보험 미가입 기간 계산 함수
+    // ==============================================
+    
+    function calculateNoInsuranceMonths(periodString) {
+        try {
+            // "202103~202503" 형태의 문자열을 파싱
+            if (!periodString || typeof periodString !== 'string') {
+                return 0;
+            }
+            
+            const parts = periodString.split('~');
+            if (parts.length !== 2) {
+                return 0;
+            }
+            
+            const startYearMonth = parts[0].trim();
+            const endYearMonth = parts[1].trim();
+            
+            // YYYYMM 형태인지 확인
+            if (startYearMonth.length !== 6 || endYearMonth.length !== 6) {
+                return 0;
+            }
+            
+            const startYear = parseInt(startYearMonth.substring(0, 4));
+            const startMonth = parseInt(startYearMonth.substring(4, 6));
+            const endYear = parseInt(endYearMonth.substring(0, 4));
+            const endMonth = parseInt(endYearMonth.substring(4, 6));
+            
+            // 유효한 날짜인지 확인
+            if (isNaN(startYear) || isNaN(startMonth) || isNaN(endYear) || isNaN(endMonth) ||
+                startMonth < 1 || startMonth > 12 || endMonth < 1 || endMonth > 12) {
+                return 0;
+            }
+            
+            // 개월 수 계산
+            const monthsDiff = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+            return Math.max(0, monthsDiff);
+            
+        } catch (error) {
+            return 0;
+        }
+    }
+    
+    // ==============================================
     // 차량 이력 API 호출 함수 (용도이력 + 보험사고 이력)
     // ==============================================
     
@@ -538,6 +590,31 @@
                     text: `소유자 변경 ${ownerChanges.length}회`,
                     type: "owner"
                 });
+            }
+            
+            // 보험 미가입 기간 확인 (항상 처리)
+            const noInsurancePeriods = [
+                data.notJoinDate1,
+                data.notJoinDate2,
+                data.notJoinDate3,
+                data.notJoinDate4,
+                data.notJoinDate5
+            ].filter(period => period && period.trim() !== '');
+            
+            if (noInsurancePeriods.length > 0) {
+                let totalMonths = 0;
+                
+                noInsurancePeriods.forEach(period => {
+                    const months = calculateNoInsuranceMonths(period);
+                    totalMonths += months;
+                });
+                
+                if (totalMonths > 0) {
+                    allLabels.push({
+                        text: `보험 미가입 ${totalMonths}개월`,
+                        type: "noinsurance"
+                    });
+                }
             }
             
             return allLabels;
@@ -657,9 +734,11 @@
         const existingUsageLabels = serviceLabelList.querySelectorAll('.usage-history-label');
         const existingInsuranceLabels = serviceLabelList.querySelectorAll('.insurance-history-label');
         const existingOwnerLabels = serviceLabelList.querySelectorAll('.owner-change-label');
+        const existingNoInsuranceLabels = serviceLabelList.querySelectorAll('.noinsurance-label');
         existingUsageLabels.forEach(label => label.remove());
         existingInsuranceLabels.forEach(label => label.remove());
         existingOwnerLabels.forEach(label => label.remove());
+        existingNoInsuranceLabels.forEach(label => label.remove());
         
         // 각 차량 이력 라벨 생성
         vehicleLabels.forEach(labelData => {
@@ -672,6 +751,8 @@
                 label.className = 'insurance-history-label';
             } else if (labelData.type === 'owner') {
                 label.className = 'owner-change-label';
+            } else if (labelData.type === 'noinsurance') {
+                label.className = 'noinsurance-label';
             }
             
             label.textContent = labelData.text;
