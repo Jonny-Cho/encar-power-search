@@ -30,6 +30,10 @@ zip -r "$ZIP_NAME" . \
   -x ".DS_Store" \
   -x "archive/*" \
   -x ".claude/*" \
+  -x ".cursor/*" \
+  -x ".vscode/*" \
+  -x ".github/*" \
+  -x "test/*" \
   -x ".idea/*" \
   -x "emoji-icon-generator.html" \
   -x "screenshot.png"
