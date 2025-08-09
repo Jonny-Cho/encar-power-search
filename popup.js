@@ -234,19 +234,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 활성 탭에 메시지 전송
     function updateActiveTab() {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            if (tabs[0] && tabs[0].url.includes('encar.com')) {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    action: 'toggleSections',
-                    hidePhotoSection: hidePhotoToggle.checked,
-                    hidePrioritySection: hidePriorityToggle.checked,
-                    showUsageHistory: showUsageHistoryToggle.checked,
-                    showInsuranceHistory: showInsuranceHistoryToggle.checked,
-                    showOwnerHistory: showOwnerHistoryToggle.checked,
-                    showNoInsuranceHistory: showNoInsuranceHistoryToggle.checked,
-                    extendPagerow: extendPagerowToggle.checked
-                });
-            }
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            const tab = tabs && tabs[0];
+            if (!tab || !tab.id || !tab.url || !tab.url.includes('encar.com')) return;
+            // 콜백을 명시해 Promise 반환을 막고, 수신자가 없을 때의 오류를 삼킵니다
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'toggleSections',
+                hidePhotoSection: hidePhotoToggle.checked,
+                hidePrioritySection: hidePriorityToggle.checked,
+                showUsageHistory: showUsageHistoryToggle.checked,
+                showInsuranceHistory: showInsuranceHistoryToggle.checked,
+                showOwnerHistory: showOwnerHistoryToggle.checked,
+                showNoInsuranceHistory: showNoInsuranceHistoryToggle.checked,
+                extendPagerow: extendPagerowToggle.checked
+            }, function() {
+                // 수신자가 없으면 lastError가 설정됩니다
+                if (chrome.runtime && chrome.runtime.lastError) {
+                    // 필요시 디버그용으로만 남깁니다
+                    // console.debug('No receiver for message:', chrome.runtime.lastError.message);
+                }
+            });
         });
     }
 });
