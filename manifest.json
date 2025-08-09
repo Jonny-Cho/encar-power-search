@@ -18,7 +18,19 @@
   "content_scripts": [
     {
       "matches": ["http://www.encar.com/*", "https://www.encar.com/*"],
-      "js": ["content.js"],
+      "js": [
+        "content/constants.js",
+        "content/utils/dom.js",
+        "content/utils/url.js",
+        "content/services/settings.js",
+        "content/services/router.js",
+        "content/services/api.js",
+        "content/modules/accident-filter.js",
+        "content/modules/section-manager.js",
+        "content/modules/pagerow-extension.js",
+        "content/modules/vehicle-history.js",
+        "content/main.js"
+      ],
       "css": ["styles.css"],
       "run_at": "document_end"
     }
