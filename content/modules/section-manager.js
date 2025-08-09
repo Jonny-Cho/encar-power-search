@@ -5,23 +5,30 @@
 
   const { DOM } = window.EPS;
 
-  const togglePhotoSection = (hide) => {
-    const el = DOM.find('.section.list.special');
-    if (!el) {
-      // 재시도 (로딩 지연 대응)
-      setTimeout(() => togglePhotoSection(hide), 1000);
-      return;
-    }
-    el.style.display = hide ? 'none' : 'block';
+  // 전역 스타일 주입으로 DOM 생성 타이밍과 무관하게 제어
+  const ensureGlobalStyle = () => {
+    if (document.getElementById('eps-section-style')) return;
+    const style = document.createElement('style');
+    style.id = 'eps-section-style';
+    style.textContent = `
+      .eps-hide-photo .section.list.special { display: none !important; }
+      .eps-hide-priority .section.list[data-bind*="specialSearchResults"]:not(.special) { display: none !important; }
+    `;
+    document.head.appendChild(style);
   };
 
-  const togglePrioritySection = (hide) => {
-    const el = DOM.find('.section.list[data-bind*="specialSearchResults"]:not(.special)');
-    if (!el) {
-      setTimeout(() => togglePrioritySection(hide), 1000);
-      return;
-    }
-    el.style.display = hide ? 'none' : 'block';
+  const togglePhotoSection = async (hide) => {
+    ensureGlobalStyle();
+    const body = document.body; if (!body) return;
+    if (hide) body.classList.add('eps-hide-photo');
+    else body.classList.remove('eps-hide-photo');
+  };
+
+  const togglePrioritySection = async (hide) => {
+    ensureGlobalStyle();
+    const body = document.body; if (!body) return;
+    if (hide) body.classList.add('eps-hide-priority');
+    else body.classList.remove('eps-hide-priority');
   };
 
   const updateVehicleHistoryVisibility = (showUsage, showInsurance, showOwner, showNoInsurance) => {
@@ -44,8 +51,10 @@
   const applySettings = async () => {
     try {
       const s = (await window.EPS.Settings.getAll());
-      togglePhotoSection(!!s.hidePhotoSection);
-      togglePrioritySection(!!s.hidePrioritySection);
+      await Promise.all([
+        togglePhotoSection(!!s.hidePhotoSection),
+        togglePrioritySection(!!s.hidePrioritySection)
+      ]);
       updateVehicleHistoryVisibility(
         s.showUsageHistory !== false,
         s.showInsuranceHistory !== false,
@@ -56,15 +65,9 @@
   };
 
   const SectionManager = {
-    async init() {
-      await applySettings();
-    },
-    async onSettingsChanged() {
-      await applySettings();
-    },
-    async onRouteChange() {
-      await applySettings();
-    }
+    async init() { await applySettings(); },
+    async onSettingsChanged() { await applySettings(); },
+    async onRouteChange() { await applySettings(); }
   };
 
   window.EPS.Modules.SectionManager = SectionManager;
