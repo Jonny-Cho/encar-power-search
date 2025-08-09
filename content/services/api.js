@@ -38,10 +38,11 @@
       const labels = [];
       const use = Array.isArray(data.carInfoUse1s) ? data.carInfoUse1s : [];
       if (use.some((c) => ['3', '4'].includes(c))) labels.push({ text: '사용이력있음', type: 'usage' });
-      const my = (data.accidents || []).filter((a) => a.type === '1' || a.type === '2');
-      if (my.length > 0) {
-        const total = my.reduce((s, a) => s + (a.partCost || 0) + (a.laborCost || 0) + (a.paintingCost || 0), 0);
-        labels.push({ text: `내차 보험사고 ${my.length}회 / ${total.toLocaleString()}원`, type: 'insurance' });
+      // 내차 보험사고: API 요약 필드만 사용 (기존 계산식 제거)
+      const myCount = Number(data.myAccidentCnt) || 0;
+      const myTotal = Number(data.myAccidentCost) || 0;
+      if (myCount > 0) {
+        labels.push({ text: `내차 보험사고 ${myCount}회 / ${myTotal.toLocaleString()}원`, type: 'insurance' });
       }
       const oc = data.ownerChanges;
       if (Array.isArray(oc) && oc.length > 0) labels.push({ text: `소유자 변경 ${oc.length}회`, type: 'owner' });
