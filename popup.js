@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showOwnerHistoryToggle = document.getElementById('showOwnerHistory');
     const showNoInsuranceHistoryToggle = document.getElementById('showNoInsuranceHistory');
     const extendPagerowToggle = document.getElementById('extendPagerow');
+  const openReviewLinkBtn = document.getElementById('openReviewLink');
     
     // 초기화
     loadVersionInfo();
@@ -65,6 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
         savePagerowSettings(this.checked);
         updateActiveTab();
     });
+
+  // 리뷰 링크 열기
+  if (openReviewLinkBtn) {
+    openReviewLinkBtn.addEventListener('click', function() {
+      const url = 'https://chromewebstore.google.com/detail/encar-power-search/fekacphpglpdpebddjfbjdcpljhdaoge/reviews';
+      // 새 탭으로 오픈
+      chrome.tabs.create({ url });
+    });
+  }
     
     // 페이지 상태 확인
     function checkPageStatus() {
