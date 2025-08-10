@@ -16,8 +16,8 @@
       photoRow: '#sr_photo li[data-index]'
     },
     defaultSettings: {
-      hidePhotoSection: false,
-      hidePrioritySection: false,
+      hidePhotoSection: true,
+      hidePrioritySection: true,
       showUsageHistory: true,
       showInsuranceHistory: true,
       showOwnerHistory: true,
