@@ -5,9 +5,11 @@
 
   const modules = [
     'AccidentFilter',
+    'AdvancedFilterPanel',
     'SectionManager',
     'PagerowExtension',
-    'VehicleHistory'
+    'VehicleHistory',
+    'LabelFilter'
   ].map((name) => (window.EPS.Modules && window.EPS.Modules[name]) || null).filter(Boolean);
 
   const boot = async () => {

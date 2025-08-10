@@ -22,7 +22,16 @@
       showInsuranceHistory: true,
       showOwnerHistory: true,
       showNoInsuranceHistory: true,
-      extendPagerow: true
+      extendPagerow: true,
+      thresholdMyAccidentCount: 3,
+      thresholdMyAccidentCost: 10000000,
+      thresholdOwnerChanges: 5,
+      thresholdNoInsuranceMonths: 12,
+      enableAccidentCount: false,
+      enableAccidentCost: false,
+      enableOwnerChanges: false,
+      enableNoInsuranceMonths: false,
+      hideIfUsage: false
     }
   };
 })();
