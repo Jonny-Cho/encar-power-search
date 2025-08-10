@@ -344,3 +344,94 @@
 .hide-noinsurance-labels .noinsurance-label {
     display: none !important;
 }
+
+/* 고급 필터: 기준 초과 항목 숨김 */
+.eps-hidden-row {
+    display: none !important;
+}
+
+/* 고급 숨김 조건 패널 - 사고유무 패널과 동일한 톤&스타일 */
+.schset.encar-advanced {
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.05) 0%, transparent 100%) !important;
+}
+
+.schset.encar-advanced h5 a {
+    color: rgb(255, 107, 53) !important;
+    font-weight: 600 !important;
+}
+
+.schset.encar-advanced .ic_bul {
+    transition: transform 0.3s ease !important;
+}
+
+.schset.encar-advanced.open .ic_bul {
+    transform: rotate(-180deg) !important;
+}
+
+.schset.encar-advanced .depthpreant {
+    transition: all 0.3s ease !important;
+}
+
+.schset.encar-advanced .deplist li {
+    transition: background-color 0.2s ease !important;
+}
+
+.schset.encar-advanced .deplist li:hover {
+    background-color: rgba(255, 107, 53, 0.08) !important;
+}
+
+.schset.encar-advanced .deplist li.eps-field > div:first-child { position: static !important; }
+.schset.encar-advanced .deplist li.eps-field > input.checkbox { position: absolute !important; left: -9999px !important; }
+.schset.encar-advanced .deplist li.eps-field label { display: inline-block !important; color: #333 !important; margin-bottom: 0 !important; padding-left: 26px !important; }
+
+/* 필드형 행(eps-field): 숫자/금액 입력 전용 스타일 */
+.schset.encar-advanced .deplist li.eps-field { padding-left: 0 !important; }
+
+/* 체크박스형 행(eps-check): 엔카 기본 패턴과 동일하게 표시 */
+.schset.encar-advanced .deplist li.eps-check label {
+    display: inline-block !important;
+    margin-left: 0 !important;
+    margin-bottom: 0 !important;
+    padding-left: 26px !important; /* 체크박스 아이콘 공간 확보 */
+}
+
+/* eps-check: 엔카 기본 커스텀 체크박스 방식 적용 (native 체크박스 숨기기) */
+.schset.encar-advanced .deplist li.eps-check { position: relative !important; }
+.schset.encar-advanced .deplist li.eps-check input.checkbox {
+    position: absolute !important;
+    left: -9999px !important; /* 화면 밖으로 */
+}
+
+/* 커스텀 체크박스 아이콘은 사이트 기본 스타일에 위임 (accident 패널과 동일하게 표시) */
+
+.schset.encar-advanced .deplist li input[type="number"],
+.schset.encar-advanced .deplist li input[type="text"] {
+    height: 36px !important;
+    padding: 6px 10px !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.schset.encar-advanced .deplist li em {
+    color: #6c757d !important;
+    font-style: normal !important;
+}
+
+/* 입력 아래 보조 문구 */
+.schset.encar-advanced .deplist li .eps-helper {
+    margin-top: 6px !important;
+    color: #6c757d !important;
+    font-size: 12px !important;
+    text-align: right !important;
+    display: block !important;
+}
+
+/* 수평 정렬을 위한 인라인 정렬 보조 */
+.schset.encar-advanced .deplist li label,
+.schset.encar-advanced .deplist li input[type="number"],
+.schset.encar-advanced .deplist li em {
+    vertical-align: middle !important;
+}

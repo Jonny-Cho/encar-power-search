@@ -26,9 +26,11 @@
         "content/services/router.js",
         "content/services/api.js",
         "content/modules/accident-filter.js",
+        "content/modules/advanced-filter-panel.js",
         "content/modules/section-manager.js",
         "content/modules/pagerow-extension.js",
         "content/modules/vehicle-history.js",
+        "content/modules/label-filter.js",
         "content/main.js"
       ],
       "css": ["styles.css"],
