@@ -1,6 +1,6 @@
-# 🚗 Encar Power Search
+# 🚗 [Encar Power Search](https://chromewebstore.google.com/detail/encar-power-search/fekacphpglpdpebddjfbjdcpljhdaoge)
 
-> 엔카 무사고 차량 필터링 및 고급 검색을 위한 Chrome 확장 프로그램
+> [엔카 무사고 차량 필터링 및 고급 검색을 위한 Chrome 확장 프로그램](https://chromewebstore.google.com/detail/encar-power-search/fekacphpglpdpebddjfbjdcpljhdaoge)
 
 [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?style=flat-square&logo=google-chrome)](https://chrome.google.com/webstore)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-green?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/)
