@@ -9,7 +9,7 @@
     showInsuranceHistory: true,
     showOwnerHistory: true,
     showNoInsuranceHistory: true,
-    extendPagerow: true
+    pagerowValue: '500'
   };
 
   let cache = null;
@@ -53,5 +53,23 @@
     return () => subscribers.delete(fn);
   };
 
-  window.EPS.Settings = { init, getAll, subscribe };
+  const set = async (updates) => {
+    const storage = chrome && chrome.storage && chrome.storage.sync;
+    if (!storage) {
+      cache = { ...cache, ...updates };
+      return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+      storage.set(updates, () => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          cache = { ...cache, ...updates };
+          resolve();
+        }
+      });
+    });
+  };
+
+  window.EPS.Settings = { init, getAll, subscribe, set };
 })();
