@@ -22,7 +22,7 @@
       showInsuranceHistory: true,
       showOwnerHistory: true,
       showNoInsuranceHistory: true,
-      extendPagerow: true,
+      pagerowValue: '500',
       thresholdMyAccidentCount: 3,
       thresholdMyAccidentCost: 10000000,
       thresholdOwnerChanges: 5,

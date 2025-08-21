@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const showInsuranceHistoryToggle = document.getElementById('showInsuranceHistory');
     const showOwnerHistoryToggle = document.getElementById('showOwnerHistory');
     const showNoInsuranceHistoryToggle = document.getElementById('showNoInsuranceHistory');
-    const extendPagerowToggle = document.getElementById('extendPagerow');
   const openReviewLinkBtn = document.getElementById('openReviewLink');
     
     // 초기화
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadInsuranceHistorySettings();
     loadOwnerHistorySettings();
     loadNoInsuranceHistorySettings();
-    loadPagerowSettings();
     
     // 사진우대 섹션 토글 이벤트
     hidePhotoToggle.addEventListener('change', function() {
@@ -58,12 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 보험 미가입기간 표시 토글 이벤트
     showNoInsuranceHistoryToggle.addEventListener('change', function() {
         saveNoInsuranceHistorySettings(this.checked);
-        updateActiveTab();
-    });
-    
-    // Pagerow 확장 토글 이벤트
-    extendPagerowToggle.addEventListener('change', function() {
-        savePagerowSettings(this.checked);
         updateActiveTab();
     });
 
@@ -215,23 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Pagerow 확장 설정 로드
-    function loadPagerowSettings() {
-        chrome.storage.sync.get(['extendPagerow'], function(result) {
-            const isEnabled = result.extendPagerow !== false; // 기본값 true
-            extendPagerowToggle.checked = isEnabled;
-        });
-    }
-    
-    // Pagerow 확장 설정 저장
-    function savePagerowSettings(isEnabled) {
-        chrome.storage.sync.set({
-            extendPagerow: isEnabled
-        }, function() {
-            console.log('Pagerow extension setting saved:', isEnabled);
-        });
-    }
-    
     // 활성 탭에 메시지 전송
     function updateActiveTab() {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -245,8 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showUsageHistory: showUsageHistoryToggle.checked,
                 showInsuranceHistory: showInsuranceHistoryToggle.checked,
                 showOwnerHistory: showOwnerHistoryToggle.checked,
-                showNoInsuranceHistory: showNoInsuranceHistoryToggle.checked,
-                extendPagerow: extendPagerowToggle.checked
+                showNoInsuranceHistory: showNoInsuranceHistoryToggle.checked
             }, function() {
                 // 수신자가 없으면 lastError가 설정됩니다
                 if (chrome.runtime && chrome.runtime.lastError) {
