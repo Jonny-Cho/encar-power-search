@@ -9,7 +9,8 @@
     'SectionManager',
     'PagerowExtension',
     'VehicleHistory',
-    'LabelFilter'
+    'LabelFilter',
+    'AdBanner'
   ].map((name) => (window.EPS.Modules && window.EPS.Modules[name]) || null).filter(Boolean);
 
   const boot = async () => {

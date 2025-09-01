@@ -31,6 +31,7 @@
         "content/modules/pagerow-extension.js",
         "content/modules/vehicle-history.js",
         "content/modules/label-filter.js",
+        "content/modules/ad-banner.js",
         "content/main.js"
       ],
       "css": ["styles.css"],
